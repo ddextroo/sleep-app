@@ -14,7 +14,7 @@ import Animated, {
   withSpring,
   runOnJS,
 } from "react-native-reanimated";
-import { AnimatedDot } from "../components/onboarding/AnimatedDot";
+import { AnimatedDot } from "../../components/onboarding/AnimatedDot";
 import { blurhash } from "../utils/blurhash";
 import { slides } from "../dto/onboarding";
 import { useAssets } from "expo-asset";
@@ -72,9 +72,9 @@ function Slide({ item, index, translateX }) {
   });
 
   return (
-    <View style={{ width }} className="flex-1">
+    <View style={{ width }} className="flex-1 bg-background">
       <View className="flex-col">
-        <Animated.View className="h-1/2 p-4" style={animatedImageStyle}>
+        <Animated.View className="h-1/2" style={animatedImageStyle}>
           <Image
             source={assets ? assets[index] : ""}
             style={{ width: "100%", height: "100%" }}
@@ -83,13 +83,15 @@ function Slide({ item, index, translateX }) {
             transition={1000}
           />
         </Animated.View>
-        <View className="h-3/4 bg-primary px-8 mt-5">
+        <View className="h-3/4 px-8 mt-5">
           <Animated.View className="flex-col h-1/2" style={animatedTextStyle}>
-            <Text className="text-light font-sans-bold">HAGOC</Text>
-            <Text className="text-light text-3xl font-sans-bold mt-2">
+            <Text className="text-foreground text-md font-sans-bold">
+              HAGOC
+            </Text>
+            <Text className="text-foreground text-2xl font-sans-bold mt-2">
               {item.title}
             </Text>
-            <Text className="text-secondary text-md font-sans mt-2">
+            <Text className="text-muted-foreground text-md font-sans mt-2">
               {item.description}
             </Text>
           </Animated.View>
@@ -178,7 +180,7 @@ export default function Welcome() {
               style={{ opacity: 0.9 }}
               activeOpacity={0.7}
             >
-              <Text className="text-light font-lg font-sans-medium">
+              <Text className="text-foreground font-lg font-sans-medium">
                 {currentIndex < slides.length - 1 ? "Next" : "Get Started"}
               </Text>
             </TouchableOpacity>
