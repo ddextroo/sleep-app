@@ -1,6 +1,8 @@
 {
   "expo": {
     "scheme": "hagoc",
+    "owner": "dextro",
+    "platforms": ["ios", "android", "web"],
     "userInterfaceStyle": "automatic",
     "orientation": "default",
     "web": {
@@ -18,8 +20,8 @@
       "backgroundColor": "#050404"
     },
     "plugins": [
+      "@react-native-google-signin/google-signin",
       [
-        "@react-native-google-signin/google-signin",
         "expo-asset",
         {
           "assets": [
@@ -44,6 +46,7 @@
     "name": "Hagoc",
     "slug": "Hagoc",
     "extra": {
+      "googleClientId": "813758568874-9ft5cvtqu5f1d1epoqpnkthr3pqluv6e.apps.googleusercontent.com",
       "router": {
         "origin": false
       },

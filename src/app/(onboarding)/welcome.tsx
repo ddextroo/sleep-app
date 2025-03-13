@@ -86,7 +86,7 @@ function Slide({ item, index, translateX }) {
         <View className="h-3/4 bg-primary px-8 mt-5">
           <Animated.View className="flex-col h-1/2" style={animatedTextStyle}>
             <Text className="text-light font-sans-bold">HAGOC</Text>
-            <Text className="text-light text-3xl font-sans-bold">
+            <Text className="text-light text-3xl font-sans-bold mt-2">
               {item.title}
             </Text>
             <Text className="text-secondary text-md font-sans mt-2">
