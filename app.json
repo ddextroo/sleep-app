@@ -6,10 +6,41 @@
     "web": {
       "output": "static"
     },
-    "plugins": [
-      "expo-router"
+    "fonts": [
+      "./src/assets/fonts/Poppins-Regular.ttf",
+      "./src/assets/fonts/Poppins-Bold.ttf",
+      "./src/assets/fonts/Poppins-Medium.ttf"
     ],
-    "name": "sleep-app",
-    "slug": "sleep-app"
+    "icon": "./src/assets/images/icon_hagoc.png",
+    "splash": {
+      "image": "./src/assets/images/logo_hagoc.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#050404"
+    },
+    "plugins": [
+      "expo-router",
+      [
+        "expo-splash-screen",
+        {
+          "backgroundColor": "#050404",
+          "image": "./src/assets/images/logo_hagoc.png",
+          "imageWidth": 200
+        }
+      ],
+      "expo-font"
+    ],
+    "name": "Hagoc",
+    "slug": "Hagoc",
+    "extra": {
+      "router": {
+        "origin": false
+      },
+      "eas": {
+        "projectId": "426350b3-6ecd-4abf-97c3-10eb2366805c"
+      }
+    },
+    "android": {
+      "package": "com.phpastil.hagoc"
+    }
   }
 }
