@@ -19,6 +19,7 @@
     },
     "plugins": [
       [
+        "@react-native-google-signin/google-signin",
         "expo-asset",
         {
           "assets": [
