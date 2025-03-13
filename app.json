@@ -1,6 +1,6 @@
 {
   "expo": {
-    "scheme": "acme",
+    "scheme": "hagoc",
     "userInterfaceStyle": "automatic",
     "orientation": "default",
     "web": {
@@ -18,6 +18,16 @@
       "backgroundColor": "#050404"
     },
     "plugins": [
+      [
+        "expo-asset",
+        {
+          "assets": [
+            "./src/assets/images/onb1.png",
+            "./src/assets/images/onb2.png",
+            "./src/assets/images/onb3.png"
+          ]
+        }
+      ],
       "expo-router",
       [
         "expo-splash-screen",
@@ -27,7 +37,8 @@
           "imageWidth": 200
         }
       ],
-      "expo-font"
+      "expo-font",
+      "expo-asset"
     ],
     "name": "Hagoc",
     "slug": "Hagoc",
@@ -40,7 +51,19 @@
       }
     },
     "android": {
-      "package": "com.phpastil.hagoc"
+      "package": "com.phpastil.hagoc",
+      "intentFilters": [
+        {
+          "action": "VIEW",
+          "data": [
+            {
+              "scheme": "hagoc",
+              "host": "redirect"
+            }
+          ],
+          "category": ["BROWSABLE", "DEFAULT"]
+        }
+      ]
     }
   }
 }
