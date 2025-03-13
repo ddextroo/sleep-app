@@ -46,7 +46,6 @@
     "name": "Hagoc",
     "slug": "Hagoc",
     "extra": {
-      "googleClientId": "813758568874-9ft5cvtqu5f1d1epoqpnkthr3pqluv6e.apps.googleusercontent.com",
       "router": {
         "origin": false
       },
