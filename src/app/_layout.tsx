@@ -23,7 +23,7 @@ export default function Layout() {
     const checkAuth = async () => {
       await initAuth();
       if (onboardingComplete) {
-        router.replace("/(home)");
+        router.replace("/(tabs)");
       } else {
         router.replace("/(onboarding)/welcome");
       }
@@ -31,7 +31,7 @@ export default function Layout() {
     };
 
     checkAuth();
-  }, []);
+  }, [onboardingComplete]);
 
   useEffect(() => {
     if (fontsLoaded && initialized) {
@@ -39,14 +39,5 @@ export default function Layout() {
     }
   }, [fontsLoaded, initialized]);
 
-  return (
-    <View className="flex-1">
-      <Stack
-        screenOptions={{
-          headerShown: false,
-          animation: "fade",
-        }}
-      />
-    </View>
-  );
+  return <Slot />;
 }

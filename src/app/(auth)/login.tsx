@@ -24,7 +24,7 @@ export default function Login() {
     try {
       const response = await signInWithEmail(email, password);
       if (response.user) {
-        router.push("/(home)");
+        router.push("/(tabs)");
       }
     } catch (error) {
       console.log(error);
@@ -71,10 +71,7 @@ export default function Login() {
             />
           </View>
 
-          <Button
-            className="w-full mt-5"
-            onPress={() => signInWithEmail(email, password)}
-          >
+          <Button className="w-full mt-5" onPress={() => handleSignIn()}>
             <Text className="text-foreground font-sans-medium">Sign in</Text>
           </Button>
           <Button
