@@ -5,28 +5,19 @@ import { blurhash } from "../utils/blurhash";
 import { Image } from "expo-image";
 import { Button } from "../../components/ui/button";
 import { Input } from "~/components/ui/input";
-import { useAuthStore, useAuthSessionStore } from "../store/authStore";
+import { useAuthSignup } from "../store/authStore";
 import { Label } from "~/components/ui/label";
-import { signInWithEmail } from "../service/authService";
+import { signUpWithEmail } from "../service/authService";
 import { router } from "expo-router";
 
-export default function Login() {
+export default function Signup() {
   const [assets] = useAssets([require("../../assets/images/icon_hagoc.png")]);
-  const { email, password, setEmail, setPassword } = useAuthStore();
-
-  const { session, initSession } = useAuthSessionStore();
-
-  useEffect(() => {
-    initSession();
-  }, []);
-
-  const handleSignIn = async () => {
+  const { username, email, password, setUsername, setEmail, setPassword } =
+    useAuthSignup();
+  const handleSignup = async () => {
     try {
-      const response = await signInWithEmail(email, password);
-      console.log(response);
-      if (response.user) {
-        router.push("/(home)");
-      }
+      await signUpWithEmail(email, password);
+      router.push("/(home)/");
     } catch (error) {
       console.log(error);
     }
@@ -44,9 +35,21 @@ export default function Login() {
             transition={1000}
           />
           <Text className="text-foreground text-3xl font-sans-bold mb-8">
-            Sign in to Hagoc
+            Sign up to Hagoc
           </Text>
 
+          <View className="w-full gap-y-5 flex">
+            <Label nativeID="username" className="font-sans">
+              Username
+            </Label>
+            <Input
+              className="w-full"
+              inputMode="text"
+              placeholder="e.g juandelagwapo"
+              value={username}
+              onChangeText={setUsername}
+            />
+          </View>
           <View className="w-full gap-y-5 flex">
             <Label nativeID="email_address" className="font-sans">
               Email Address
@@ -72,20 +75,15 @@ export default function Login() {
             />
           </View>
 
-          <Button
-            className="w-full mt-5"
-            onPress={() => signInWithEmail(email, password)}
-          >
-            <Text className="text-foreground font-sans-medium">Sign in</Text>
+          <Button className="w-full mt-5" onPress={() => handleSignup()}>
+            <Text className="text-foreground font-sans-medium">Sign up</Text>
           </Button>
           <Button
             className="w-full mt-5"
             variant="outline"
-            onPress={() => router.push("/(auth)/signup")}
+            onPress={() => router.push("/(auth)/login")}
           >
-            <Text className="text-foreground font-sans-medium">
-              Create new account
-            </Text>
+            <Text className="text-foreground font-sans-medium">Go back</Text>
           </Button>
         </View>
       </View>
