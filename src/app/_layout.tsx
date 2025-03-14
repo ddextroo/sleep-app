@@ -21,12 +21,11 @@ export default function Layout() {
 
   useEffect(() => {
     const checkAuth = async () => {
-      
       await initAuth();
       if (onboardingComplete) {
-        router.replace('/home'); // Navigate to home if onboarding is done
+        router.replace("/(home)");
       } else {
-        router.replace('/onboarding'); // Otherwise, go to onboarding
+        router.replace("/(onboarding)/welcome");
       }
       setInitialized(true);
     };

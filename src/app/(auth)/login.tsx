@@ -23,7 +23,6 @@ export default function Login() {
   const handleSignIn = async () => {
     try {
       const response = await signInWithEmail(email, password);
-      console.log(response);
       if (response.user) {
         router.push("/(home)");
       }

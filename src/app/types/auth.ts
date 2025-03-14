@@ -1,3 +1,5 @@
+import { Session } from '@supabase/supabase-js';
+
 export interface AuthLogin {
     email: string;
     password: string;
@@ -14,9 +16,20 @@ export interface AuthSignup {
 }
 
 export interface AuthSession {
-    session: any,
+    session: Session | null,
     loading: boolean,
-    setSession: (session: any) => void,
+    setSession: (session: Session) => void,
     setLoading: (loading: boolean) => void,
     initSession: () => Promise<void>
 }
+
+export interface OnboardingState {
+    session: Session | null;
+    loading: boolean;
+    onboardingComplete: boolean;
+  
+    setSession: (session: Session | null) => void;
+    setLoading: (loading: boolean) => void;
+    setOnboardingComplete: (status: boolean) => Promise<void>;
+    initAuth: () => Promise<void>;
+  }

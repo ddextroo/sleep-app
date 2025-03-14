@@ -1,5 +1,5 @@
 import {create} from "zustand";
-import { AuthLogin, AuthSession, AuthSignup } from "../types/auth";
+import { AuthLogin, AuthSession, AuthSignup, OnboardingState } from "../types/auth";
 import { supabase } from "../utils/supabase";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
@@ -34,7 +34,7 @@ export const useAuthSessionStore = create<AuthSession>((set) => ({
     }
 }))
 
-export const useOnboardingStore = create((set) => ({
+export const useOnboardingStore = create<OnboardingState>((set) => ({
     session: null,
     loading: false,
     onboardingComplete: false,
