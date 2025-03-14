@@ -15,8 +15,10 @@
 import { useState } from "react";
 import { View, Text, ScrollView, TouchableOpacity } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { LineChart } from "react-native-chart-kit";
+import { LineChart, PieChart, ProgressChart } from "react-native-chart-kit";
 import { Dimensions } from "react-native";
+import { LinearGradient } from "expo-linear-gradient"
+
 import {
   Moon,
   Sun,
@@ -24,7 +26,6 @@ import {
   Activity,
   ChevronLeft,
   ChevronRight,
-  CloudMoon,
 } from "lucide-react-native";
 import FontAwesome6 from "@expo/vector-icons/FontAwesome6";
 
@@ -45,11 +46,35 @@ export default function TrackScreen() {
     ],
   };
 
+  const data = [
+    {
+      name: "Deep",
+      percentage: 28,
+      color: "#954CE9",
+      legendFontColor: "#954CE9",
+      legendFont: "font-sans",
+    },
+    {
+      name: "REM",
+      percentage: 22,
+      color: "#7B68EE",
+      legendFontColor: "#7B68EE",
+      legendFont: "font-sans",
+    },
+    {
+      name: "Light",
+      percentage: 50,
+      color: "#B19CD9",
+      legendFontColor: "#B19CD9",
+      legendFont: "font-sans",
+    },
+  ];
+
   const sleepQuality = 85;
   const averageSleepTime = "7h 35m";
-  const deepSleepPercentage = 28;
-  const remSleepPercentage = 22;
-  const lightSleepPercentage = 50;
+  const duration = "7h 35m";
+  const bedtime = "10:45 PM";
+  const wakeup = "6:20 AM";
 
   const formatDate = (date) => {
     return date.toLocaleDateString("en-US", { month: "short", day: "numeric" });
@@ -62,136 +87,151 @@ export default function TrackScreen() {
   };
 
   return (
-    <SafeAreaView className="flex-1 bg-[#121212]">
-      <ScrollView className="flex-1 px-6">
-        <View className="mt-8 mb-6 flex-row justify-between items-center">
-          <Text className="text-foreground font-sans-bold text-3xl">
-            Sleep Insights
-          </Text>
-          <View className="">
-            <FontAwesome6 name="cloud-moon" size={30} color="#954CE9" />
-          </View>
-        </View>
-
-        {/* Date Navigation */}
-        <View className="flex-row justify-between items-center mb-6">
-          <TouchableOpacity onPress={() => navigateDate(-1)} className="p-2">
-            <ChevronLeft size={24} color="#954CE9" />
-          </TouchableOpacity>
-          <Text className="text-foreground text-lg font-sans">{formatDate(selectedDate)}</Text>
-          <TouchableOpacity onPress={() => navigateDate(1)} className="p-2">
-            <ChevronRight size={24} color="#954CE9" />
-          </TouchableOpacity>
-        </View>
-
-        {/* Sleep Score Card */}
-        <View className="bg-[#1E1E1E] rounded-3xl p-6 mb-6">
-          <View className="flex-row justify-between items-center mb-4">
-            <Text className="text-foreground text-lg font-sans-bold">
-              Sleep Score
+    <LinearGradient
+      colors={["#121212", "#1E1E30", "#231B36", "#1E1E30", "#121212"]}
+      start={{ x: 0, y: 0 }}
+      end={{ x: 1, y: 1 }}
+      style={{ flex: 1 }}
+    >
+      <SafeAreaView className="flex-1">
+        <ScrollView className="flex-1 px-6">
+          <View className="mt-8 mb-6 flex-row justify-between items-center">
+            <Text className="text-foreground font-sans-bold text-3xl">
+              Sleep Insights
             </Text>
-            <View className="bg-[#954CE9] rounded-full px-3 py-1">
-              <Text className="text-foreground font-sans-medium">{sleepQuality}%</Text>
+            <View className="">
+              <FontAwesome6 name="cloud-moon" size={30} color="#954CE9" />
             </View>
           </View>
 
-          <View className="flex-row justify-between mb-2">
-            <View className="flex-row items-center">
-              <Clock size={18} color="#954CE9" />
-              <Text className="text-foreground ml-2 font-sans">Duration</Text>
-            </View>
-            <Text className="text-foreground font-semibold font-sans">{averageSleepTime}</Text>
-          </View>
-
-          <View className="flex-row justify-between mb-2">
-            <View className="flex-row items-center">
-              <Moon size={18} color="#954CE9" />
-              <Text className="text-foreground ml-2 font-sans">Deep Sleep</Text>
-            </View>
-            <Text className="text-foreground font-sans">
-              {deepSleepPercentage}%
+          {/* Date Navigation */}
+          <View className="flex-row justify-between items-center mb-6">
+            <TouchableOpacity onPress={() => navigateDate(-1)} className="p-2">
+              <ChevronLeft size={24} color="#954CE9" />
+            </TouchableOpacity>
+            <Text className="text-foreground text-lg font-sans">
+              {formatDate(selectedDate)}
             </Text>
+            <TouchableOpacity onPress={() => navigateDate(1)} className="p-2">
+              <ChevronRight size={24} color="#954CE9" />
+            </TouchableOpacity>
+          </View>
+          <View className="bg-[#1E1E1E] rounded-2xl p-5 mb-6">
+            {/* Main duration display */}
+            <View className="items-center pt-2">
+              <Text className="text-gray-400 text-sm font-sans mb-2">
+                TOTAL SLEEP
+              </Text>
+              <View className="flex-row items-center">
+                <Text className="text-[#954CE9] text-4xl font-sans-bold">
+                  {duration}
+                </Text>
+              </View>
+            </View>
+
+            {/* Sleep timeline */}
+            <View className="flex-row justify-between items-center px-6 py-2">
+              <View className="items-center">
+                <View className="bg-[#2D2D2D] p-2 rounded-full mb-1">
+                  <Moon size={20} color="#954CE9" />
+                </View>
+                <Text className="text-gray-400 text-sm font-sans">Bedtime</Text>
+                <Text className="text-white text-md font-sans-medium">
+                  {bedtime}
+                </Text>
+              </View>
+
+              {/* Timeline line */}
+              <View className="flex-1 h-[2px] bg-[#2D2D2D] mx-2">
+                <View
+                  className="h-full bg-[#954CE9]"
+                  style={{ width: "100%" }}
+                />
+              </View>
+
+              <View className="items-center">
+                <View className="bg-[#2D2D2D] p-2 rounded-full mb-1">
+                  <Sun size={20} color="#954CE9" />
+                </View>
+                <Text className="text-gray-400 text-xs font-sans">Wake Up</Text>
+                <Text className="text-white text-sm font-sans-medium">
+                  {wakeup}
+                </Text>
+              </View>
+            </View>
           </View>
 
-          <View className="flex-row justify-between mb-2">
-            <View className="flex-row items-center">
-              <Activity size={18} color="#954CE9" />
-              <Text className="text-foreground ml-2 font-sans">REM Sleep</Text>
+          {/* Sleep Score Card */}
+          <View className="bg-[#1E1E1E] rounded-3xl p-6 mb-6">
+            {/* Header with Sleep Score */}
+            <View className="flex-row justify-between items-center">
+              <Text className="text-foreground text-lg font-sans-bold">
+                Sleep Analysis
+              </Text>
+              <View className="bg-[#954CE9] rounded-full px-3 py-1">
+                <Text className="text-foreground font-sans-medium">
+                  {sleepQuality}%
+                </Text>
+              </View>
             </View>
-            <Text className="text-foreground font-sans">
-              {remSleepPercentage}%
-            </Text>
-          </View>
 
-          <View className="flex-row justify-between">
-            <View className="flex-row items-center">
-              <Sun size={18} color="#954CE9" />
-              <Text className="text-foreground ml-2 font-sans">Light Sleep</Text>
-            </View>
-            <Text className="text-foreground font-sans">
-              {lightSleepPercentage}%
-            </Text>
-          </View>
-        </View>
-
-        {/* Sleep Stages Visualization */}
-        <View className="bg-[#1E1E1E] rounded-3xl p-6 mb-6">
-          <Text className="text-foreground text-lg font-sans-bold mb-4">
-            Sleep Stages
-          </Text>
-
-          <View className="mb-4">
-            <View className="flex-row justify-between mb-1">
-              <Text className="text-gray-400 font-sans">Deep</Text>
-              <Text className="text-foreground font-sans">{deepSleepPercentage}%</Text>
-            </View>
-            <View className="h-3 bg-[#2D2D2D] rounded-full overflow-hidden">
-              <View
-                className="h-full bg-[#954CE9]"
-                style={{ width: `${deepSleepPercentage}%` }}
+            {/* Centered Pie Chart */}
+            <View className="flex items-center w-full">
+              <PieChart
+                data={data}
+                width={screenWidth * 0.7}
+                height={180}
+                hasLegend={false}
+                chartConfig={{
+                  backgroundColor: "#1E1E1E",
+                  backgroundGradientFrom: "#1E1E1E",
+                  backgroundGradientTo: "#1E1E1E",
+                  decimalPlaces: 0,
+                  color: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`,
+                  labelColor: (opacity = 1) =>
+                    `rgba(255, 255, 255, ${opacity})`,
+                  style: {
+                    borderRadius: 16,
+                  },
+                }}
+                accessor={"percentage"}
+                backgroundColor={"transparent"}
+                paddingLeft={"70"}
+                absolute
               />
             </View>
-          </View>
 
-          <View className="mb-4">
-            <View className="flex-row justify-between mb-1">
-              <Text className="text-gray-400 font-sans">REM</Text>
-              <Text className="text-foreground font-sans">{remSleepPercentage}%</Text>
-            </View>
-            <View className="h-3 bg-[#2D2D2D] rounded-full overflow-hidden">
-              <View
-                className="h-full bg-[#7B68EE]"
-                style={{ width: `${remSleepPercentage}%` }}
-              />
-            </View>
-          </View>
-
-          <View>
-            <View className="flex-row justify-between mb-1">
-              <Text className="text-gray-400 font-sans">Light</Text>
-              <Text className="text-foreground font-sans">{lightSleepPercentage}%</Text>
-            </View>
-            <View className="h-3 bg-[#2D2D2D] rounded-full overflow-hidden">
-              <View
-                className="h-full bg-[#B19CD9]"
-                style={{ width: `${lightSleepPercentage}%` }}
-              />
+            {/* Enhanced Legend */}
+            <View className="flex-row justify-around px-2">
+              {data.map((item, index) => (
+                <View key={index} className="items-center text-center">
+                  <View className="flex-row items-center mb-1">
+                    <View
+                      className="h-3 w-3 rounded-full mr-2"
+                      style={{ backgroundColor: item.color }}
+                    />
+                    <Text className="text-foreground font-sans">
+                      {item.name}
+                    </Text>
+                  </View>
+                  <Text className="text-foreground font-sans-bold">
+                    {item.percentage}%
+                  </Text>
+                </View>
+              ))}
             </View>
           </View>
-        </View>
 
-        {/* Weekly Sleep Chart */}
-        <View className="bg-[#1E1E1E] rounded-3xl p-6 mb-6">
-          <Text className="text-foreground text-lg font-sans-bold mb-4">
-            Weekly Sleep
-          </Text>
+          {/* Weekly Sleep Chart */}
+          <View className="bg-[#1E1E1E] rounded-3xl p-6 mb-6">
+            <Text className="text-foreground text-lg font-sans-bold mb-4">
+              Weekly Sleep
+            </Text>
 
-          {/* <View className="-ml-8"> */}
             <LineChart
               data={sleepData}
               width={screenWidth - 60}
               height={180}
-            
               chartConfig={{
                 backgroundColor: "#1E1E1E",
                 backgroundGradientFrom: "#1E1E1E",
@@ -211,59 +251,73 @@ export default function TrackScreen() {
               bezier
               style={{
                 marginVertical: 8,
-                marginHorizontal:-20,
+                marginHorizontal: -20,
                 borderRadius: 16,
               }}
             />
-          {/* </View> */}
 
-          <View className="flex-row justify-between mt-2">
-            <View className="items-center">
-              <Text className="text-gray-400 text-xs font-sans">Avg. Sleep</Text>
-              <Text className="text-foreground font-semibold font-sans">
-                {averageSleepTime}
-              </Text>
-            </View>
+            <View className="flex-row justify-between mt-2">
+              <View className="items-center">
+                <Text className="text-gray-400 text-xs font-sans">
+                  Avg. Sleep
+                </Text>
+                <Text className="text-foreground font-semibold font-sans">
+                  {averageSleepTime}
+                </Text>
+              </View>
 
-            <View className="items-center">
-              <Text className="text-gray-400 text-xs font-sans">Best Day</Text>
-              <Text className="text-foreground font-semibold font-sans">Sat (9.2h)</Text>
-            </View>
+              <View className="items-center">
+                <Text className="text-gray-400 text-xs font-sans">
+                  Best Day
+                </Text>
+                <Text className="text-foreground font-semibold font-sans">
+                  Sat (9.2h)
+                </Text>
+              </View>
 
-            <View className="items-center">
-              <Text className="text-gray-400 text-xs font-sans">Worst Day</Text>
-              <Text className="text-foreground font-semibold font-sans">Fri (6.5h)</Text>
+              <View className="items-center">
+                <Text className="text-gray-400 text-xs font-sans">
+                  Worst Day
+                </Text>
+                <Text className="text-foreground font-semibold font-sans">
+                  Fri (6.5h)
+                </Text>
+              </View>
             </View>
           </View>
-        </View>
 
-        {/* Sleep Tracking */}
-        <View className="bg-[#1E1E1E] rounded-3xl p-6 mb-8">
-          <Text className="text-foreground text-lg font-sans-bold mb-4">
-            Track Tonight's Sleep
-          </Text>
-
-          <View className="flex-row justify-between mb-4">
-            <TouchableOpacity className="bg-[#2D2D2D] rounded-xl p-4 flex-1 mr-2 items-center">
-              <Clock size={24} color="#954CE9" />
-              <Text className="text-foreground mt-2 font-sans">Bedtime</Text>
-              <Text className="text-[#954CE9] font-bold mt-1 font-sans">10:30 PM</Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity className="bg-[#2D2D2D] rounded-xl p-4 flex-1 ml-2 items-center">
-              <Sun size={24} color="#954CE9" />
-              <Text className="text-foreground mt-2 font-sans">Wake Up</Text>
-              <Text className="text-[#954CE9] font-bold mt-1 font-sans">6:45 AM</Text>
-            </TouchableOpacity>
-          </View>
-
-          <TouchableOpacity className="bg-[#954CE9] rounded-xl py-4 items-center">
-            <Text className="text-foreground text-lg font-sans-medium">
-              Start Sleep Tracking
+          {/* Sleep Tracking */}
+          <View className="bg-[#1E1E1E] rounded-3xl p-6 mb-8">
+            <Text className="text-foreground text-lg font-sans-bold mb-4">
+              Track Tonight's Sleep
             </Text>
-          </TouchableOpacity>
-        </View>
-      </ScrollView>
-    </SafeAreaView>
+
+            <View className="flex-row justify-between mb-4">
+              <TouchableOpacity className="bg-[#2D2D2D] rounded-xl p-4 flex-1 mr-2 items-center">
+                <Clock size={24} color="#954CE9" />
+                <Text className="text-foreground mt-2 font-sans">Bedtime</Text>
+                <Text className="text-[#954CE9] font-bold mt-1 font-sans">
+                  10:30 PM
+                </Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity className="bg-[#2D2D2D] rounded-xl p-4 flex-1 ml-2 items-center">
+                <Sun size={24} color="#954CE9" />
+                <Text className="text-foreground mt-2 font-sans">Wake Up</Text>
+                <Text className="text-[#954CE9] font-bold mt-1 font-sans">
+                  6:45 AM
+                </Text>
+              </TouchableOpacity>
+            </View>
+
+            <TouchableOpacity className="bg-[#954CE9] rounded-xl py-4 items-center">
+              <Text className="text-foreground text-lg font-sans-medium">
+                Start Sleep Tracking
+              </Text>
+            </TouchableOpacity>
+          </View>
+        </ScrollView>
+      </SafeAreaView>
+    </LinearGradient>
   );
 }
