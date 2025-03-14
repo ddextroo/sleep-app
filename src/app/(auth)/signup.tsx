@@ -16,7 +16,7 @@ export default function Signup() {
     useAuthSignup();
   const handleSignup = async () => {
     try {
-      await signUpWithEmail(email, password);
+      await signUpWithEmail(email, password, username);
       router.push("/(tabs)");
     } catch (error) {
       console.log(error);
