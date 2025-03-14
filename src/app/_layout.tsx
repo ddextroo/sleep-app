@@ -6,12 +6,13 @@ import { useFonts } from "expo-font";
 import * as SplashScreen from "expo-splash-screen";
 import { supabase } from "./utils/supabase";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { StatusBar } from "expo-status-bar";
+import { useOnboardingStore } from "./store/authStore";
 SplashScreen.preventAutoHideAsync();
 
 export default function Layout() {
   const router = useRouter();
   const [initialized, setInitialized] = useState(false);
+  const { onboardingComplete, initAuth } = useOnboardingStore();
   const [fontsLoaded] = useFonts({
     "Poppins-Regular": require("./assets/fonts/Poppins-Regular.ttf"),
     "Poppins-Bold": require("./assets/fonts/Poppins-Bold.ttf"),
@@ -20,17 +21,12 @@ export default function Layout() {
 
   useEffect(() => {
     const checkAuth = async () => {
-      const {
-        data: { session },
-      } = await supabase.auth.getSession();
-      const onboarded = await AsyncStorage.getItem("onboarded");
-
-      if (!onboarded) {
-        router.replace("/(onboarding)/welcome");
-      } else if (!session) {
-        router.replace("/(auth)/login");
+      
+      await initAuth();
+      if (onboardingComplete) {
+        router.replace('/home'); // Navigate to home if onboarding is done
       } else {
-        router.replace("/(app)/home");
+        router.replace('/onboarding'); // Otherwise, go to onboarding
       }
       setInitialized(true);
     };

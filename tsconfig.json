@@ -1,6 +1,7 @@
 {
   "compilerOptions": {
     "strict": false,
+    "noImplicitAny": false,
     "baseUrl": ".",
     "paths": {
       "~/*": ["./src/*"]
