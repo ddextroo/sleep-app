@@ -28,6 +28,9 @@ import {
   ChevronRight,
 } from "lucide-react-native";
 import FontAwesome6 from "@expo/vector-icons/FontAwesome6";
+import SleepTrackingFAB, {
+  TrackSleepButton,
+} from "~/components/home/track/SlideButton";
 
 const screenWidth = Dimensions.get("window").width;
 
@@ -80,6 +83,11 @@ export default function TrackScreen() {
     return date.toLocaleDateString("en-US", { month: "short", day: "numeric" });
   };
 
+  const handleStartSleepTracking = () => {
+    console.log("Sleep tracking started!");
+    // Add your sleep tracking logic here
+  };
+
   const navigateDate = (days) => {
     const newDate = new Date(selectedDate);
     newDate.setDate(newDate.getDate() + days);
@@ -93,15 +101,13 @@ export default function TrackScreen() {
       end={{ x: 1, y: 1 }}
       style={{ flex: 1 }}
     >
+      <SleepTrackingFAB onStartTracking={handleStartSleepTracking} />
       <SafeAreaView className="flex-1">
         <ScrollView className="flex-1 px-6">
           <View className="mt-8 mb-6 flex-row justify-between items-center">
-            <Text className="text-foreground font-sans-bold text-3xl">
+            <Text className="text-foreground font-sans-bold text-3xl py-5">
               Sleep Insights
             </Text>
-            <View className="">
-              <FontAwesome6 name="cloud-moon" size={30} color="#954CE9" />
-            </View>
           </View>
 
           {/* Date Navigation */}
@@ -117,7 +123,7 @@ export default function TrackScreen() {
             </TouchableOpacity>
           </View>
 
-          <View className="bg-[#1E1E1E]/40 rounded-2xl p-5 mb-6">
+          <View className="rounded-2xl p-5 mb-6">
             {/* Main duration display */}
             <View className="items-center pt-2">
               <Text className="text-gray-400 text-sm font-sans mb-2">
@@ -163,7 +169,7 @@ export default function TrackScreen() {
           </View>
 
           {/* Sleep Score Card */}
-          <View className="bg-[#1E1E1E]/40 rounded-3xl p-6 mb-6">
+          <View className="rounded-3xl p-6 mb-6">
             {/* Header with Sleep Score */}
             <View className="flex-row justify-between items-center">
               <Text className="text-foreground text-lg font-sans-bold">
@@ -224,7 +230,7 @@ export default function TrackScreen() {
           </View>
 
           {/* Weekly Sleep Chart */}
-          <View className="bg-[#1E1E1E] rounded-3xl p-6 mb-6">
+          <View className="rounded-3xl p-6 mb-6">
             <Text className="text-foreground text-lg font-sans-bold mb-4">
               Weekly Sleep
             </Text>
@@ -234,9 +240,9 @@ export default function TrackScreen() {
               width={screenWidth - 60}
               height={180}
               chartConfig={{
-                backgroundColor: "red",
-                backgroundGradientFrom: "#1E1E1E4D",
-                backgroundGradientTo: "#1E1E1E4D",
+                backgroundColor: "transparent",
+                backgroundGradientFrom: "transparent",
+                backgroundGradientTo: "transparent",
                 decimalPlaces: 1,
                 color: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`,
                 labelColor: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`,
@@ -248,13 +254,18 @@ export default function TrackScreen() {
                   strokeWidth: "2",
                   stroke: "#954CE9",
                 },
+                fillShadowGradient: "rgba(149, 76, 233, 0.2)",
+                fillShadowGradientOpacity: 0.2,
               }}
               bezier
               style={{
                 marginVertical: 8,
                 marginHorizontal: -20,
                 borderRadius: 16,
+                backgroundColor: "transparent",
               }}
+              withShadow={false}
+              transparent={true}
             />
 
             <View className="flex-row justify-between mt-2">
@@ -288,13 +299,13 @@ export default function TrackScreen() {
           </View>
 
           {/* Sleep Tracking */}
-          <View className="bg-[#1E1E1E]/40 rounded-3xl p-6 mb-8">
+          <View className="rounded-3xl p-6 mb-8">
             <Text className="text-foreground text-lg font-sans-bold mb-4">
               Track Tonight's Sleep
             </Text>
 
             <View className="flex-row justify-between mb-4">
-              <TouchableOpacity className="bg-[#2D2D2D]/40 rounded-xl p-4 flex-1 mr-2 items-center">
+              <TouchableOpacity className=" rounded-xl p-4 flex-1 mr-2 items-center">
                 <Clock size={24} color="#954CE9" />
                 <Text className="text-foreground mt-2 font-sans">Bedtime</Text>
                 <Text className="text-[#954CE9] font-bold mt-1 font-sans">
@@ -302,7 +313,7 @@ export default function TrackScreen() {
                 </Text>
               </TouchableOpacity>
 
-              <TouchableOpacity className="bg-[#2D2D2D]/40 rounded-xl p-4 flex-1 ml-2 items-center">
+              <TouchableOpacity className=" rounded-xl p-4 flex-1 ml-2 items-center">
                 <Sun size={24} color="#954CE9" />
                 <Text className="text-foreground mt-2 font-sans">Wake Up</Text>
                 <Text className="text-[#954CE9] font-bold mt-1 font-sans">
@@ -310,12 +321,6 @@ export default function TrackScreen() {
                 </Text>
               </TouchableOpacity>
             </View>
-
-            <TouchableOpacity className="bg-[#954CE9] rounded-xl py-4 items-center">
-              <Text className="text-foreground text-lg font-sans-medium">
-                Start Sleep Tracking
-              </Text>
-            </TouchableOpacity>
           </View>
         </ScrollView>
       </SafeAreaView>

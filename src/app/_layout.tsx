@@ -1,7 +1,7 @@
 import "../global.css";
 import { Slot, Stack, useRouter } from "expo-router";
 import { useEffect, useState } from "react";
-import { Text, View } from "react-native";
+import { StatusBar, Text, View } from "react-native";
 import { useFonts } from "expo-font";
 import * as SplashScreen from "expo-splash-screen";
 import { supabase } from "./utils/supabase";
@@ -14,9 +14,9 @@ export default function Layout() {
   const [initialized, setInitialized] = useState(false);
   const { onboardingComplete, initAuth } = useOnboardingStore();
   const [fontsLoaded] = useFonts({
-    "Poppins-Regular": require("./assets/fonts/Poppins-Regular.ttf"),
-    "Poppins-Bold": require("./assets/fonts/Poppins-Bold.ttf"),
-    "Poppins-Medium": require("./assets/fonts/Poppins-Medium.ttf"),
+    "Poppins-Regular": require("./../assets/fonts/Poppins-Regular.ttf"),
+    "Poppins-Bold": require("./../assets/fonts/Poppins-Bold.ttf"),
+    "Poppins-Medium": require("./../assets/fonts/Poppins-Medium.ttf"),
   });
 
   useEffect(() => {
@@ -39,5 +39,10 @@ export default function Layout() {
     }
   }, [fontsLoaded, initialized]);
 
-  return <Slot />;
+  return (
+    <>
+      <StatusBar barStyle="light-content" backgroundColor="#121212" />
+      <Slot />
+    </>
+  );
 }

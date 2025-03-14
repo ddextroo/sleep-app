@@ -1,8 +1,10 @@
 import { Tabs } from "expo-router";
-import FontAwesome6 from "@expo/vector-icons/FontAwesome6";
 import React from "react";
 import { Dimensions, Platform, StatusBar } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { ChartIcon } from "~/components/icons/ChartIcon";
+import { UserIcon } from "~/components/icons/UserIcon";
+import { HomeIcon } from "~/components/icons/HomeIcon";
 
 export default function TabLayout() {
   const { height } = Dimensions.get("window");
@@ -19,15 +21,13 @@ export default function TabLayout() {
           tabBarStyle: Platform.select({
             ios: {
               position: "absolute",
-              height: height * 0.08,
+              height: height * 0.1,
               backgroundColor: "#1E1E1E",
-              borderTopColor: "#2D2D2D",
               paddingBottom: insets.bottom > 0 ? 20 : 10,
             },
             default: {
-              height: height * 0.08,
+              height: height * 0.1,
               backgroundColor: "#1E1E1E",
-              borderTopColor: "#2D2D2D",
               paddingBottom: 10,
             },
           }),
@@ -43,21 +43,25 @@ export default function TabLayout() {
           name="index"
           options={{
             title: "Home",
-            tabBarIcon: ({ color }) => (
-              <FontAwesome6 name="house" size={20} color={color} />
+            tabBarIcon: ({ color, focused }) => (
+              <HomeIcon size={24} color={color} filled={focused} />
             ),
+            tabBarLabelStyle: {
+              fontSize: 12,
+              fontFamily: "Poppins-Medium",
+            },
           }}
         />
         <Tabs.Screen
           name="track"
           options={{
             title: "Track",
-            tabBarIcon: ({ color }) => (
-              <FontAwesome6 name="chart-simple" size={20} color={color} />
+            tabBarIcon: ({ color, focused }) => (
+              <ChartIcon size={24} color={color} filled={focused} />
             ),
             tabBarLabelStyle: {
-              fontFamily: "font-sans-bold",
-              fontSize: 12, // Adjust font size if needed
+              fontSize: 12,
+              fontFamily: "Poppins-Medium",
             },
           }}
         />
@@ -65,9 +69,13 @@ export default function TabLayout() {
           name="profile"
           options={{
             title: "Profile",
-            tabBarIcon: ({ color }) => (
-              <FontAwesome6 name="user-large" size={20} color={color} />
+            tabBarIcon: ({ color, focused }) => (
+              <UserIcon size={24} color={color} filled={focused} />
             ),
+            tabBarLabelStyle: {
+              fontSize: 12,
+              fontFamily: "Poppins-Medium",
+            },
           }}
         />
       </Tabs>
