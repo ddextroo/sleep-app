@@ -17,7 +17,7 @@ import { View, Text, ScrollView, TouchableOpacity } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { LineChart, PieChart, ProgressChart } from "react-native-chart-kit";
 import { Dimensions } from "react-native";
-import { LinearGradient } from "expo-linear-gradient"
+import { LinearGradient } from "expo-linear-gradient";
 
 import {
   Moon,
@@ -116,7 +116,8 @@ export default function TrackScreen() {
               <ChevronRight size={24} color="#954CE9" />
             </TouchableOpacity>
           </View>
-          <View className="bg-[#1E1E1E] rounded-2xl p-5 mb-6">
+
+          <View className="bg-[#1E1E1E]/40 rounded-2xl p-5 mb-6">
             {/* Main duration display */}
             <View className="items-center pt-2">
               <Text className="text-gray-400 text-sm font-sans mb-2">
@@ -162,7 +163,7 @@ export default function TrackScreen() {
           </View>
 
           {/* Sleep Score Card */}
-          <View className="bg-[#1E1E1E] rounded-3xl p-6 mb-6">
+          <View className="bg-[#1E1E1E]/40 rounded-3xl p-6 mb-6">
             {/* Header with Sleep Score */}
             <View className="flex-row justify-between items-center">
               <Text className="text-foreground text-lg font-sans-bold">
@@ -233,9 +234,9 @@ export default function TrackScreen() {
               width={screenWidth - 60}
               height={180}
               chartConfig={{
-                backgroundColor: "#1E1E1E",
-                backgroundGradientFrom: "#1E1E1E",
-                backgroundGradientTo: "#1E1E1E",
+                backgroundColor: "red",
+                backgroundGradientFrom: "#1E1E1E4D",
+                backgroundGradientTo: "#1E1E1E4D",
                 decimalPlaces: 1,
                 color: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`,
                 labelColor: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`,
@@ -287,13 +288,13 @@ export default function TrackScreen() {
           </View>
 
           {/* Sleep Tracking */}
-          <View className="bg-[#1E1E1E] rounded-3xl p-6 mb-8">
+          <View className="bg-[#1E1E1E]/40 rounded-3xl p-6 mb-8">
             <Text className="text-foreground text-lg font-sans-bold mb-4">
               Track Tonight's Sleep
             </Text>
 
             <View className="flex-row justify-between mb-4">
-              <TouchableOpacity className="bg-[#2D2D2D] rounded-xl p-4 flex-1 mr-2 items-center">
+              <TouchableOpacity className="bg-[#2D2D2D]/40 rounded-xl p-4 flex-1 mr-2 items-center">
                 <Clock size={24} color="#954CE9" />
                 <Text className="text-foreground mt-2 font-sans">Bedtime</Text>
                 <Text className="text-[#954CE9] font-bold mt-1 font-sans">
@@ -301,7 +302,7 @@ export default function TrackScreen() {
                 </Text>
               </TouchableOpacity>
 
-              <TouchableOpacity className="bg-[#2D2D2D] rounded-xl p-4 flex-1 ml-2 items-center">
+              <TouchableOpacity className="bg-[#2D2D2D]/40 rounded-xl p-4 flex-1 ml-2 items-center">
                 <Sun size={24} color="#954CE9" />
                 <Text className="text-foreground mt-2 font-sans">Wake Up</Text>
                 <Text className="text-[#954CE9] font-bold mt-1 font-sans">
