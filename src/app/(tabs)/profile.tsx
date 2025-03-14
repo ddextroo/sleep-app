@@ -29,7 +29,9 @@ export default function Profile() {
     signOut();
     router.replace("/(auth)/login");
   };
-  const [assets] = useAssets([require("../../assets/images/hagoc_avatar.png")]);
+  const [assets] = useAssets([
+    require("../../assets/images/hagoc_avatar_male.png"),
+  ]);
 
   return (
     <SafeAreaView className="flex-1 bg-background">
