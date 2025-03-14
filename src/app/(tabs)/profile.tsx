@@ -4,8 +4,10 @@ import { SafeAreaView } from "react-native";
 
 export default function Profile() {
   return (
-    <SafeAreaView className={`flex-1 bg-background justify-center items-center`}>
-      <Text className={`text-white text-lg`}>Profile here! 🎉</Text>
+    <SafeAreaView className="bg-background">
+      <View className="h-full flex flex-col justify-center items-center">
+        <Text className="text-foreground text-center">Profile Screen</Text>
+      </View>
     </SafeAreaView>
   );
 }
