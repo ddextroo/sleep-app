@@ -1,6 +1,7 @@
 import {supabase} from "~/app/utils/supabase"
 import { useAuthSessionStore } from "../store/authStore"
 import { Alert } from "react-native"
+import { router } from "expo-router"
 
 export const signInWithEmail = async (email: string, password: string) => {
     const { data, error } = await supabase.auth.signInWithPassword({
@@ -14,14 +15,19 @@ export const signInWithEmail = async (email: string, password: string) => {
     return data
 }
 
-export const signUpWithEmail = async (email: string, password: string) => {
+export const signUpWithEmail = async (email: string, password: string, username) => {
     const { setSession, setLoading } = useAuthSessionStore.getState();
 
     setLoading(true);  
 
-    const {data: {session}, error} = await supabase.auth.signUp({
+    const {data: {session, user}, error} = await supabase.auth.signUp({
         email,
         password,
+        options: {
+            data: {
+                display_name: username
+            }
+        }
     })
     if (error) {
         console.log(error)
@@ -29,9 +35,53 @@ export const signUpWithEmail = async (email: string, password: string) => {
         setLoading(false);
         throw new Error(error.message);
       }
+
+      if (user) {
+        try {
+            const {error: userError} = await supabase.from("users").insert([
+                {
+                    id: user.id,
+                    username: username,
+                    email_address: user.email,
+                }
+            ]);
+
+            if (userError) {
+                console.error("Error saving user:", userError);
+                Alert.alert("Error saving user user.");
+                throw new Error(userError.message);
+            }
+        } catch (err) {
+            console.error("Unexpected error:", err);
+        }
+      }
     
       setSession(session);
       setLoading(false);
     
       return session;
+}
+export const signOut = async () => {
+    await supabase.auth.signOut();
+}
+
+export const getUserDetails = async () => {
+    const { data: userData, error: userError } = await supabase.auth.getUser();
+    if (userError || !userData?.user) {
+        console.error("Error fetching user:", userError);
+        throw new Error(userError?.message || "User not found");
+      }
+
+      const { data: profile, error: profileError } = await supabase
+    .from("users")
+    .select("*")
+    .eq("id", userData.user.id)
+    .single();
+
+  if (profileError) {
+    console.error("Error fetching profile:", profileError);
+    throw new Error(profileError.message);
+  }
+
+  return {  profile };
 }

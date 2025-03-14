@@ -17,7 +17,6 @@ import Animated, {
 import { AnimatedDot } from "../../components/onboarding/AnimatedDot";
 import { blurhash } from "../utils/blurhash";
 import { slides } from "../dto/onboarding";
-import { useAssets } from "expo-asset";
 import { useOnboardingStore } from "../store/authStore";
 import Slide from "~/components/onboarding/Slide";
 
