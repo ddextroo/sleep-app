@@ -14,12 +14,6 @@ export default function Login() {
   const [assets] = useAssets([require("../../assets/images/icon_hagoc.png")]);
   const { email, password, setEmail, setPassword } = useAuthStore();
 
-  const { session, initSession } = useAuthSessionStore();
-
-  useEffect(() => {
-    initSession();
-  }, []);
-
   const handleSignIn = async () => {
     try {
       const response = await signInWithEmail(email, password);

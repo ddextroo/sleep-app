@@ -12,7 +12,7 @@ import {
 } from "lucide-react-native";
 import { Button } from "~/components/ui/button";
 import MenuItem from "~/components/home/profile/MenuItem";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useAuthSessionStore } from "../store/authStore";
 import { getUserDetails, signOut } from "../service/authService";
 import { router } from "expo-router";
@@ -22,6 +22,7 @@ import { Image } from "expo-image";
 
 export default function Profile() {
   const { session, initSession } = useAuthSessionStore();
+  const [userDetails, setUserDetails] = useState(null);
   useEffect(() => {
     initSession();
   }, []);
@@ -29,8 +30,22 @@ export default function Profile() {
     signOut();
     router.replace("/(auth)/login");
   };
+
+  useEffect(() => {
+    const fetchUserDetails = async () => {
+      try {
+        const data = await getUserDetails();
+        setUserDetails(data);
+      } catch (error) {
+        console.error("Error fetching user details:", error);
+      }
+    };
+
+    fetchUserDetails();
+  }, []);
   const [assets] = useAssets([
     require("../../assets/images/hagoc_avatar_male.png"),
+    require("../../assets/images/hagoc_avatar_female.png"),
   ]);
 
   return (
@@ -40,7 +55,11 @@ export default function Profile() {
           <View className="w-full bg-secondary rounded-lg p-5 flex flex-row items-center gap-x-3 mb-5">
             <View className="w-20 bg-primary h-20 rounded-full">
               <Image
-                source={assets ? assets[0] : ""}
+                source={
+                  !assets
+                    ? ""
+                    : assets[userDetails?.profile?.gender === "Male" ? 0 : 1]
+                }
                 style={{ width: "100%", height: "100%" }}
                 placeholder={{ blurhash }}
                 contentFit="cover"

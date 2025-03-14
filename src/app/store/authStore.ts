@@ -14,9 +14,11 @@ export const useAuthSignup = create<AuthSignup>((set) => ({
  username: '',
  email: '',
  password: '',
+ gender: '',
  setUsername: (username) => set({username}),
  setEmail: (email) => set({email}),
  setPassword: (password) => set({password}),
+ setGender: (gender) => set({gender}),
 }))
 
 export const useAuthSessionStore = create<AuthSession>((set) => ({

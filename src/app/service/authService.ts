@@ -1,7 +1,6 @@
 import {supabase} from "~/app/utils/supabase"
 import { useAuthSessionStore } from "../store/authStore"
 import { Alert } from "react-native"
-import { router } from "expo-router"
 
 export const signInWithEmail = async (email: string, password: string) => {
     const { data, error } = await supabase.auth.signInWithPassword({
@@ -15,7 +14,7 @@ export const signInWithEmail = async (email: string, password: string) => {
     return data
 }
 
-export const signUpWithEmail = async (email: string, password: string, username) => {
+export const signUpWithEmail = async (email: string, password: string, username: string, gender: string ) => {
     const { setSession, setLoading } = useAuthSessionStore.getState();
 
     setLoading(true);  
@@ -42,6 +41,7 @@ export const signUpWithEmail = async (email: string, password: string, username)
                 {
                     id: user.id,
                     username: username,
+                    gender: gender,
                     email_address: user.email,
                 }
             ]);
@@ -62,8 +62,24 @@ export const signUpWithEmail = async (email: string, password: string, username)
       return session;
 }
 export const signOut = async () => {
-    await supabase.auth.signOut();
-}
+    const { setSession } = useAuthSessionStore.getState();
+
+    try {
+        const { error } = await supabase.auth.signOut();
+        if (error) {
+            console.error("Error during sign out:", error);
+            throw new Error(error.message);
+        }
+
+        // Clear session in the store
+        setSession(null);
+
+        console.log("User successfully signed out.");
+    } catch (err) {
+        console.error("Unexpected error during sign out:", err);
+        throw new Error("Failed to sign out.");
+    }
+};
 
 export const getUserDetails = async () => {
     const { data: userData, error: userError } = await supabase.auth.getUser();

@@ -10,9 +10,11 @@ export interface AuthSignup {
     username: string;
     email: string;
     password: string;
+    gender: string;
     setUsername: (username: string) => void;
     setEmail: (email: string) => void;
     setPassword: (password: string) => void;
+    setGender: (gender: string) => void;    
 }
 
 export interface AuthSession {

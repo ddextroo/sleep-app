@@ -1,22 +1,34 @@
 import { View, Text, SafeAreaView } from "react-native";
 import React, { useEffect, useState } from "react";
-import { useAssets } from "expo-asset";
-import { blurhash } from "../utils/blurhash";
-import { Image } from "expo-image";
 import { Button } from "../../components/ui/button";
 import { Input } from "~/components/ui/input";
 import { useAuthSignup } from "../store/authStore";
 import { Label } from "~/components/ui/label";
 import { signUpWithEmail } from "../service/authService";
 import { router } from "expo-router";
+import { RadioGroup, RadioGroupItem } from "~/components/ui/radio-group";
 
 export default function Signup() {
-  const [assets] = useAssets([require("../../assets/images/icon_hagoc.png")]);
-  const { username, email, password, setUsername, setEmail, setPassword } =
-    useAuthSignup();
+  const {
+    username,
+    email,
+    password,
+    gender = "Male",
+    setUsername,
+    setEmail,
+    setPassword,
+    setGender,
+  } = useAuthSignup();
+
+  function onLabelPress(label: string) {
+    return () => {
+      setGender(label);
+    };
+  }
+
   const handleSignup = async () => {
     try {
-      await signUpWithEmail(email, password, username);
+      await signUpWithEmail(email, password, username, gender);
       router.push("/(tabs)");
     } catch (error) {
       console.log(error);
@@ -26,19 +38,15 @@ export default function Signup() {
   return (
     <SafeAreaView className="bg-background flex-1">
       <View className="h-full flex flex-col px-4">
-        <View className="flex justify-center items-center w-full px-8">
-          <Image
-            source={assets ? assets[0] : ""}
-            style={{ width: "40%", height: "40%" }}
-            placeholder={{ blurhash }}
-            contentFit="contain"
-            transition={1000}
-          />
-          <Text className="text-foreground text-3xl font-sans-bold mb-8">
+        <View className="flex justify-center h-full w-full px-8">
+          <Text className="text-foreground text-3xl font-sans-bold mt-4">
             Sign up to Hagoc
           </Text>
+          <Text className="text-muted-foreground text-left mt-2 font-sans">
+            Create an account to get started with Hagoc
+          </Text>
 
-          <View className="w-full gap-y-5 flex">
+          <View className="w-full gap-y-5 flex mt-5">
             <Label nativeID="username" className="font-sans">
               Username
             </Label>
@@ -74,19 +82,60 @@ export default function Signup() {
               onChangeText={setPassword}
             />
           </View>
+          <View className="flex flex-col py-5">
+            <Label nativeID="email_address" className="font-sans mb-5">
+              Choose Gender
+            </Label>
+            <View>
+              <RadioGroup
+                value={gender}
+                onValueChange={setGender}
+                className="gap-3"
+              >
+                <RadioGroupItemWithLabel
+                  value="Male"
+                  onLabelPress={onLabelPress("Male")}
+                />
+                <RadioGroupItemWithLabel
+                  value="Female"
+                  onLabelPress={onLabelPress("Female")}
+                />
+              </RadioGroup>
+            </View>
+          </View>
 
           <Button className="w-full mt-5" onPress={() => handleSignup()}>
             <Text className="text-foreground font-sans-medium">Sign up</Text>
           </Button>
-          <Button
-            className="w-full mt-5"
-            variant="outline"
-            onPress={() => router.push("/(auth)/login")}
-          >
-            <Text className="text-foreground font-sans-medium">Go back</Text>
-          </Button>
+          <View className="flex-row justify-center mt-4">
+            <Text className="text-foreground font-sans-medium">
+              Already have an account?
+            </Text>
+            <Text
+              className="text-primary font-sans-medium ml-1"
+              onPress={() => router.push("/(auth)/login")}
+            >
+              Log in
+            </Text>
+          </View>
         </View>
       </View>
     </SafeAreaView>
+  );
+}
+function RadioGroupItemWithLabel({
+  value,
+  onLabelPress,
+}: {
+  value: string;
+  onLabelPress: () => void;
+}) {
+  return (
+    <View className={"flex-row gap-2 items-center"}>
+      <RadioGroupItem aria-labelledby={`label-for-${value}`} value={value} />
+      <Label nativeID={`label-for-${value}`} onPress={onLabelPress}>
+        {value}
+      </Label>
+    </View>
   );
 }
