@@ -25,13 +25,17 @@ export default function Layout() {
       } = await supabase.auth.getSession();
       const onboarded = await AsyncStorage.getItem("onboarded");
 
-      if (!onboarded) {
-        router.replace("/(onboarding)/welcome");
-      } else if (!session) {
-        router.replace("/(auth)/login");
-      } else {
-        router.replace("/(app)/home");
-      }
+      router.replace("/(tabs)");
+      // router.replace("/(onboarding)/welcome");
+      // router.replace("/(auth)/login");
+      // router.replace("/(tabs)/index");
+      // if (!onboarded) {
+      //   router.replace("/(onboarding)/welcome");
+      // } else if (!session) {
+      //   router.replace("/(auth)/login");
+      // } else {
+      //   router.replace("/(app)/home");
+      // }
       setInitialized(true);
     };
 
