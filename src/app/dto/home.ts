@@ -26,11 +26,6 @@ export const RECOMMENDED_DATA = [
       icon: "book",
     },
     {
-      id: 2,
-      title: "Sleep Journal",
-      icon: "clock",
-    },
-    {
       id: 3,
       title: "Sleep Facts",
       icon: "brain",
@@ -39,10 +34,5 @@ export const RECOMMENDED_DATA = [
       id: 4,
       title: "How to Sleep",
       icon: "bed",
-    },
-    {
-      id: 5,
-      title: "Insomnia",
-      icon: "moon",
     },
   ];

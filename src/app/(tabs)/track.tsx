@@ -1,19 +1,5 @@
-// import React from "react";
-// import { Text, View } from "react-native";
-// import { SafeAreaView } from "react-native";
-
-// export default function TrackScreen() {
-//   return (
-//     <SafeAreaView className="bg-background">
-//       <View className="h-full flex flex-col justify-center items-center">
-//         <Text className="text-foreground text-center">Track Screen</Text>
-//       </View>
-//     </SafeAreaView>
-//   );
-// }
-
 import { useState } from "react";
-import { View, Text, ScrollView, TouchableOpacity } from "react-native";
+import { View, Text, ScrollView, TouchableOpacity, Button } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { LineChart, PieChart, ProgressChart } from "react-native-chart-kit";
 import { Dimensions } from "react-native";
@@ -28,9 +14,7 @@ import {
   ChevronRight,
 } from "lucide-react-native";
 import FontAwesome6 from "@expo/vector-icons/FontAwesome6";
-import SleepTrackingFAB, {
-  TrackSleepButton,
-} from "~/components/home/track/SlideButton";
+import SleepTrackingFAB from "~/components/home/track/SlideButton";
 
 const screenWidth = Dimensions.get("window").width;
 
@@ -101,13 +85,15 @@ export default function TrackScreen() {
       end={{ x: 1, y: 1 }}
       style={{ flex: 1 }}
     >
-      <SleepTrackingFAB onStartTracking={handleStartSleepTracking} />
       <SafeAreaView className="flex-1">
         <ScrollView className="flex-1 px-6">
           <View className="mt-8 mb-6 flex-row justify-between items-center">
             <Text className="text-foreground font-sans-bold text-3xl py-5">
               Sleep Insights
             </Text>
+            <TouchableOpacity onPress={handleStartSleepTracking}>
+              <Moon size={24} color="#FFFFFF" />
+            </TouchableOpacity>
           </View>
 
           {/* Date Navigation */}
@@ -299,7 +285,7 @@ export default function TrackScreen() {
           </View>
 
           {/* Sleep Tracking */}
-          <View className="rounded-3xl p-6 mb-8">
+          {/* <View className="rounded-3xl p-6 mb-8">
             <Text className="text-foreground text-lg font-sans-bold mb-4">
               Track Tonight's Sleep
             </Text>
@@ -321,7 +307,7 @@ export default function TrackScreen() {
                 </Text>
               </TouchableOpacity>
             </View>
-          </View>
+          </View> */}
         </ScrollView>
       </SafeAreaView>
     </LinearGradient>
