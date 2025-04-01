@@ -36,7 +36,17 @@
             "./src/assets/listen_stories/djraqi2.mp3",
             "./src/assets/listen_stories/djraqi3.mp3",
             "./src/assets/listen_stories/reddit1.mp3",
-            "./src/assets/listen_stories/reddit2.mp3"
+            "./src/assets/listen_stories/reddit2.mp3",
+            "./src/assets/calm_sounds/nature1.mp3",
+            "./src/assets/calm_sounds/nature2.mp3",
+            "./src/assets/calm_sounds/nature3.mp3",
+            "./src/assets/calm_sounds/nature4.mp3",
+            "./src/assets/calm_sounds/nature5.mp3",
+            "./src/assets/calm_sounds/meditation1.mp3",
+            "./src/assets/calm_sounds/meditation2.mp3",
+            "./src/assets/calm_sounds/sleep1.mp3",
+            "./src/assets/calm_sounds/sleep2.mp3",
+            "./src/assets/calm_sounds/sleep3.mp3"
           ]
         }
       ],

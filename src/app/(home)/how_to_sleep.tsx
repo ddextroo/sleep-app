@@ -5,7 +5,8 @@ import { SafeAreaView } from "react-native-safe-area-context"
 import { LinearGradient } from "expo-linear-gradient"
 import { ChevronLeft, Moon, Clock, Coffee, Wind, BookOpen, ChevronDown, ChevronUp } from "lucide-react-native"
 import { router } from "expo-router"
-import { useSleepStore } from "./store/sleep-store"
+import { useSleepStore } from "../store/sleepStore"
+
 
 const AnimatedProgressLine = ({ steps, completedSteps, currentStep }) => {
   const animatedValues = useRef(steps.map(() => new Animated.Value(0))).current
