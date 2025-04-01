@@ -32,6 +32,7 @@
             "./src/assets/images/onb1.png",
             "./src/assets/images/onb2.png",
             "./src/assets/images/onb3.png",
+            "./src/assets/images/loveradio.png",
             "./src/assets/listen_stories/djraqi1.mp3",
             "./src/assets/listen_stories/djraqi2.mp3",
             "./src/assets/listen_stories/djraqi3.mp3",
@@ -46,7 +47,8 @@
             "./src/assets/calm_sounds/meditation2.mp3",
             "./src/assets/calm_sounds/sleep1.mp3",
             "./src/assets/calm_sounds/sleep2.mp3",
-            "./src/assets/calm_sounds/sleep3.mp3"
+            "./src/assets/calm_sounds/sleep3.mp3",
+            "./src/assets/lottie/confetti.json"
           ]
         }
       ],

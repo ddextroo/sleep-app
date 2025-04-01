@@ -7,6 +7,7 @@ import { ChevronLeft, Moon, Clock, Coffee, Wind, BookOpen, ChevronDown, ChevronU
 import { router } from "expo-router"
 import { useSleepStore } from "../store/sleepStore"
 
+import { CongratulationsDialog } from "./components/congratulations_dialog"
 
 const AnimatedProgressLine = ({ steps, completedSteps, currentStep }) => {
   const animatedValues = useRef(steps.map(() => new Animated.Value(0))).current
@@ -186,7 +187,9 @@ const ProgressHeader = ({ currentStep, totalSteps }) => {
 }
 
 const HowToSleep = () => {
-  const { currentStep, completedSteps, setCurrentStep } = useSleepStore()
+  const { currentStep, completedSteps, showCongratulations, setShowCongratulations, hasShownCongratulations } =
+    useSleepStore()
+
   const scrollViewRef = useRef(null)
 
   const sleepMethods = [
@@ -252,6 +255,13 @@ const HowToSleep = () => {
     },
   ]
 
+  // For debugging - add a button to reset the hasShownCongratulations flag
+  const resetCongratulationsFlag = () => {
+    // This would typically be hidden in production
+    localStorage.removeItem("sleep-progress")
+    window.location.reload()
+  }
+
   return (
     <LinearGradient
       colors={["#121212", "#1E1E30", "#231B36", "#1E1E30", "#121212"]}
@@ -289,7 +299,20 @@ const HowToSleep = () => {
               />
             ))}
           </View>
+
+          {/* For development purposes only */}
+          {/* 
+          <TouchableOpacity 
+            onPress={resetCongratulationsFlag}
+            className="mt-8 bg-[#2A2A40] p-3 rounded-lg"
+          >
+            <Text className="text-white text-center">Reset Congratulations (Dev Only)</Text>
+          </TouchableOpacity>
+          */}
         </ScrollView>
+
+        {/* Congratulations Dialog */}
+        <CongratulationsDialog visible={showCongratulations} onClose={() => setShowCongratulations(false)} />
       </SafeAreaView>
     </LinearGradient>
   )
