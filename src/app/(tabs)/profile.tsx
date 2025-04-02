@@ -88,7 +88,7 @@ export default function Profile() {
             </View>
           )}
 
-          <View className="w-full  rounded-lg mb-5">
+          {/* <View className="w-full  rounded-lg mb-5">
             <View className="flex flex-row items-center justify-between mb-2">
               <View className="flex flex-row items-center gap-x-2">
                 <Coins color="#FFD700" size={24} />
@@ -108,17 +108,17 @@ export default function Profile() {
                 Available kowens
               </Text>
             </View>
-          </View>
+          </View> */}
 
           <View className="w-full  rounded-lg overflow-hidden mb-5">
             <MenuItem
               icon={<Settings size={20} color="#666" />}
               title="Account Settings"
             />
-            <MenuItem
+            {/* <MenuItem
               icon={<CreditCard size={20} color="#666" />}
               title="Payment Methods"
-            />
+            /> */}
             <MenuItem
               icon={<HelpCircle size={20} color="#666" />}
               title="Privacy Policy"

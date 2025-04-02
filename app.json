@@ -29,6 +29,7 @@
         "expo-asset",
         {
           "assets": [
+            "./src/assets/images/sleep1.png",
             "./src/assets/images/onb1.png",
             "./src/assets/images/onb2.png",
             "./src/assets/images/onb3.png"

@@ -1,81 +1,292 @@
-import { useState } from "react";
-import { View, Text, ScrollView, TouchableOpacity, Button } from "react-native";
+import { useState, useEffect, useRef } from "react";
+import {
+  View,
+  Text,
+  ScrollView,
+  TouchableOpacity,
+  Modal,
+  Pressable,
+  Animated,
+  Image,
+} from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { LineChart, PieChart, ProgressChart } from "react-native-chart-kit";
 import { Dimensions } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
-
+import Svg, { Circle } from "react-native-svg";
 import {
   Moon,
   Sun,
-  Clock,
-  Activity,
   ChevronLeft,
   ChevronRight,
+  StopCircle,
+  Play,
+  BarChart3,
+  TrendingUp,
+  TrendingDown,
+  Minus,
 } from "lucide-react-native";
-import FontAwesome6 from "@expo/vector-icons/FontAwesome6";
-import SleepTrackingFAB from "~/components/home/track/SlideButton";
+import {
+  startSleepTracking,
+  formatDuration,
+  getSleepProgress,
+  getSleepDataForDate,
+} from "../service/trackService";
+import { BlurView } from "expo-blur";
+import { getUserDetails } from "../service/authService";
+import { useAssets } from "expo-asset";
 
 const screenWidth = Dimensions.get("window").width;
 
 export default function TrackScreen() {
   const [selectedDate, setSelectedDate] = useState(new Date());
+  const [modalVisible, setModalVisible] = useState(false);
+  const [isTracking, setIsTracking] = useState(false);
+  const [stopModalVisible, setStopModalVisible] = useState(false);
+  const [sleepDuration, setSleepDuration] = useState("00:00:00");
+  const [startTime, setStartTime] = useState(null);
+  const [endTime, setEndTime] = useState(null);
+  const [elapsedTime, setElapsedTime] = useState(0);
+  const [previousDateData, setPreviousDateData] = useState(null);
+  const [sleepProgress, setSleepProgress] = useState({
+    hours: Array(7).fill(0),
+    average: 0,
+  });
+  const intervalRef = useRef(null);
+  const pulseAnim = useRef(new Animated.Value(1)).current;
+  const circleRef = useRef(null);
+  const [userName, setUserName] = useState("");
 
-  // Sample sleep data
-  const sleepData = {
-    labels: ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
-    datasets: [
-      {
-        data: [7.2, 6.8, 8.1, 7.5, 6.5, 9.2, 7.8],
-        color: (opacity = 1) => `rgba(149, 76, 233, ${opacity})`, // Violet color
-        strokeWidth: 2,
-      },
-    ],
+  // Fetch previous date's sleep data
+  useEffect(() => {
+    const fetchPreviousData = async () => {
+      const previousDate = new Date(selectedDate);
+      previousDate.setDate(previousDate.getDate() - 1);
+      const data = await getSleepDataForDate(previousDate);
+      setPreviousDateData(data);
+    };
+    fetchPreviousData();
+  }, [selectedDate]);
+
+  useEffect(() => {
+    if (isTracking) {
+      // Start pulse animation
+      Animated.loop(
+        Animated.sequence([
+          Animated.timing(pulseAnim, {
+            toValue: 1.2,
+            duration: 1000,
+            useNativeDriver: true,
+          }),
+          Animated.timing(pulseAnim, {
+            toValue: 1,
+            duration: 1000,
+            useNativeDriver: true,
+          }),
+        ])
+      ).start();
+    } else {
+      pulseAnim.setValue(1);
+    }
+  }, [isTracking]);
+
+  // Fetch sleep progress data
+  useEffect(() => {
+    const fetchSleepProgress = async () => {
+      console.log("Fetching sleep progress...");
+      const data = await getSleepProgress(selectedDate);
+      console.log("Received sleep progress data:", data);
+
+      if (data) {
+        console.log("Sleep progress data:", data);
+        setSleepProgress(data);
+      }
+    };
+    fetchSleepProgress();
+  }, [isTracking]);
+
+  // Fetch sleep data for selected date
+  useEffect(() => {
+    const fetchSleepData = async () => {
+      const data = await getSleepDataForDate(selectedDate);
+      console.log("Fetched sleep data:", data); // Add logging
+      if (data) {
+        setSleepDuration(data.duration);
+        setStartTime(data.startTime);
+        setEndTime(data.endTime);
+      } else {
+        setSleepDuration("00:00:00");
+        setStartTime(null);
+        setEndTime(null);
+      }
+    };
+    fetchSleepData();
+  }, [selectedDate]);
+
+  // Update useEffect to fetch user data using getUserDetails
+  useEffect(() => {
+    const fetchUserData = async () => {
+      const userDetails = await getUserDetails();
+      if (userDetails?.profile?.username) {
+        setUserName(userDetails.profile.username);
+      }
+    };
+    fetchUserData();
+  }, []);
+
+  const isToday = () => {
+    const today = new Date();
+    return (
+      selectedDate.getDate() === today.getDate() &&
+      selectedDate.getMonth() === today.getMonth() &&
+      selectedDate.getFullYear() === today.getFullYear()
+    );
   };
 
-  const data = [
-    {
-      name: "Deep",
-      percentage: 28,
-      color: "#954CE9",
-      legendFontColor: "#954CE9",
-      legendFont: "font-sans",
-    },
-    {
-      name: "REM",
-      percentage: 22,
-      color: "#7B68EE",
-      legendFontColor: "#7B68EE",
-      legendFont: "font-sans",
-    },
-    {
-      name: "Light",
-      percentage: 50,
-      color: "#B19CD9",
-      legendFontColor: "#B19CD9",
-      legendFont: "font-sans",
-    },
-  ];
-
-  const sleepQuality = 85;
-  const averageSleepTime = "7h 35m";
-  const duration = "7h 35m";
-  const bedtime = "10:45 PM";
-  const wakeup = "6:20 AM";
+  useEffect(() => {
+    return () => {
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current);
+      }
+    };
+  }, []);
 
   const formatDate = (date) => {
     return date.toLocaleDateString("en-US", { month: "short", day: "numeric" });
   };
 
-  const handleStartSleepTracking = () => {
-    console.log("Sleep tracking started!");
-    // Add your sleep tracking logic here
+  const handleConfirmTracking = () => {
+    setModalVisible(false);
+    startTracking();
+  };
+
+  const startTracking = () => {
+    setIsTracking(true);
+    const now = Date.now();
+    setStartTime(now);
+    setElapsedTime(0);
+
+    // Start the timer
+    clearInterval(intervalRef.current);
+    intervalRef.current = setInterval(() => {
+      setElapsedTime((prev) => prev + 1);
+    }, 1000);
+
+    // Start tracking in Supabase
+    startSleepTracking(now, null, 0);
+  };
+
+  const handleStopTracking = async () => {
+    clearInterval(intervalRef.current);
+    setIsTracking(false);
+    const endTime = Date.now();
+    const finalDuration = formatDuration(elapsedTime, false);
+    setSleepDuration(finalDuration);
+    setEndTime(endTime);
+    setStopModalVisible(true);
+
+    try {
+      await startSleepTracking(startTime, endTime, elapsedTime);
+      // Fetch updated data after stopping tracking
+      const updatedData = await getSleepDataForDate(selectedDate);
+      if (updatedData) {
+        setSleepDuration(updatedData.duration);
+        setStartTime(updatedData.startTime);
+        setEndTime(updatedData.endTime);
+      }
+    } catch (error) {
+      console.error(error);
+    }
   };
 
   const navigateDate = (days) => {
     const newDate = new Date(selectedDate);
     newDate.setDate(newDate.getDate() + days);
-    setSelectedDate(newDate);
+
+    // Get today's date at midnight for comparison
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    newDate.setHours(0, 0, 0, 0);
+
+    // Allow navigation to today's date but prevent future dates
+    if (newDate.getTime() <= today.getTime()) {
+      setSelectedDate(newDate);
+    }
+  };
+
+  const formatTime = (timestamp) => {
+    return new Date(timestamp).toLocaleTimeString([], {
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: true,
+    });
+  };
+
+  // Calculate the quality percentage based on current day's sleep duration
+  const getCurrentDaySleepHours = () => {
+    if (isTracking) {
+      return elapsedTime / 3600; // Convert seconds to hours
+    } else if (sleepDuration === "00:00:00") {
+      return 0;
+    } else {
+      // Parse the sleep duration string (e.g., "7m 30s" -> 0.125 hours)
+      let totalHours = 0;
+      const parts = sleepDuration.split(" ");
+
+      parts.forEach((part) => {
+        if (part.includes("h")) {
+          totalHours += parseInt(part) || 0;
+        } else if (part.includes("m")) {
+          totalHours += (parseInt(part) || 0) / 60;
+        } else if (part.includes("s")) {
+          totalHours += (parseInt(part) || 0) / 3600;
+        }
+      });
+
+      return totalHours;
+    }
+  };
+
+  //100% percent will be 8 hours
+  const qualityPercentage = Math.min(
+    100,
+    Math.round((getCurrentDaySleepHours() / 8) * 100)
+  );
+
+  // calculate progress circle
+  const size = 120;
+  const strokeWidth = 10;
+  const radius = (size - strokeWidth) / 2;
+  const circumference = radius * 2 * Math.PI;
+  const strokeDashoffset =
+    circumference - (qualityPercentage / 100) * circumference;
+
+  // messages based on time of day
+  const getMessage = () => {
+    const now = new Date();
+    const hour = now.getHours();
+
+    if (hour >= 5 && hour < 12) {
+      return "Good morning";
+    } else if (hour >= 12 && hour < 17) {
+      return "Good afternoon";
+    } else if (hour >= 17 && hour < 22) {
+      return "Good evening";
+    } else {
+      return "Good night";
+    }
+  };
+
+  // sleep quality message
+  const getSleepQualityMessage = (hours: number) => {
+    if (hours >= 8) {
+      return "Excellent sleep! You've got the perfect amount of rest.";
+    } else if (hours >= 7) {
+      return "Good sleep! You're well-rested.";
+    } else if (hours >= 6) {
+      return "Fair sleep. Try to get a bit more rest next time.";
+    } else {
+      return "You might want to get more sleep next time.";
+    }
   };
 
   return (
@@ -88,226 +299,472 @@ export default function TrackScreen() {
       <SafeAreaView className="flex-1">
         <ScrollView className="flex-1 px-6">
           <View className="mt-8 mb-6 flex-row justify-between items-center">
-            <Text className="text-foreground font-sans-bold text-3xl py-5">
+            <Text className="text-white font-sans-bold text-3xl">
               Sleep Insights
             </Text>
-            <TouchableOpacity onPress={handleStartSleepTracking}>
-              <Moon size={24} color="#FFFFFF" />
-            </TouchableOpacity>
           </View>
 
-          {/* Date Navigation */}
-          <View className="flex-row justify-between items-center mb-6">
-            <TouchableOpacity onPress={() => navigateDate(-1)} className="p-2">
-              <ChevronLeft size={24} color="#954CE9" />
+          {/* start tracking modal */}
+          <Modal
+            animationType="fade"
+            transparent={true}
+            visible={modalVisible}
+            onRequestClose={() => setModalVisible(false)}
+          >
+            <BlurView
+              intensity={100}
+              tint="dark"
+              className="flex-1 justify-center items-center"
+            >
+              <View className="bg-[#1E1E30] backdrop-blur-lg rounded-3xl p-8 w-4/5 items-center shadow-lg">
+                <View className="bg-[#2D2D2D] p-4 rounded-full mb-6">
+                  <Moon size={32} color="#8A7CFF" />
+                </View>
+                <Text className="text-white text-2xl font-sans-bold mb-2">
+                  Start Sleep Tracking?
+                </Text>
+                <Text className="text-gray-300 text-center mb-6 font-sans">
+                  Your sleep data will be recorded until you stop tracking
+                </Text>
+                <View className="flex-row space-x-4 w-full gap-4">
+                  <Pressable
+                    className="flex-1 bg-[#2D2D2D] rounded-xl py-4"
+                    onPress={() => setModalVisible(false)}
+                  >
+                    <Text className="text-white text-center font-sans-bold">
+                      Cancel
+                    </Text>
+                  </Pressable>
+                  <Pressable
+                    className="flex-1 bg-[#8A7CFF] rounded-xl py-4"
+                    onPress={handleConfirmTracking}
+                  >
+                    <Text className="text-white text-center font-sans-bold">
+                      Start
+                    </Text>
+                  </Pressable>
+                </View>
+              </View>
+            </BlurView>
+          </Modal>
+
+          {/* stop tracking modal */}
+          <Modal
+            animationType="fade"
+            transparent={true}
+            visible={stopModalVisible}
+            onRequestClose={() => setStopModalVisible(false)}
+          >
+            <BlurView
+              intensity={100}
+              tint="dark"
+              className="flex-1 justify-center items-center"
+            >
+              <View className="bg-[#1E1E30] backdrop-blur-lg rounded-3xl p-8 w-4/5 items-center shadow-lg">
+                <View className="bg-[#2D2D2D] p-4 rounded-full mb-6">
+                  <Sun size={32} color="#8A7CFF" />
+                </View>
+                <Text className="text-white text-2xl font-sans-bold mb-2">
+                  {getMessage()}
+                  {userName ? `, ${userName}` : ""}!
+                </Text>
+                <Text className="text-gray-300 text-center mb-2 font-sans">
+                  You slept for
+                </Text>
+                <Text className="text-[#8A7CFF] text-3xl font-sans-bold mb-2">
+                  {sleepDuration}
+                </Text>
+                <Text className="text-gray-300 text-center mb-6 font-sans">
+                  {getSleepQualityMessage(getCurrentDaySleepHours())}
+                </Text>
+                <Pressable
+                  className="bg-[#8A7CFF] rounded-xl px-8 py-4 w-full"
+                  onPress={() => setStopModalVisible(false)}
+                >
+                  <Text className="text-white text-center font-sans-bold">
+                    Close
+                  </Text>
+                </Pressable>
+              </View>
+            </BlurView>
+          </Modal>
+
+          {/* date nav */}
+          <View className="flex-row justify-between items-center mb-6 bg-[#1E1E30] rounded-xl p-3">
+            <TouchableOpacity
+              onPress={() => navigateDate(-1)}
+              className="bg-[#2D2D2D] p-2 rounded-lg"
+            >
+              <ChevronLeft size={20} color="#8A7CFF" />
             </TouchableOpacity>
-            <Text className="text-foreground text-lg font-sans">
+            <Text className="text-white text-lg font-sans-medium">
               {formatDate(selectedDate)}
             </Text>
-            <TouchableOpacity onPress={() => navigateDate(1)} className="p-2">
-              <ChevronRight size={24} color="#954CE9" />
+            <TouchableOpacity
+              onPress={() => navigateDate(1)}
+              className="bg-[#2D2D2D] p-2 rounded-lg"
+            >
+              <ChevronRight size={20} color="#8A7CFF" />
             </TouchableOpacity>
           </View>
 
-          <View className="rounded-2xl p-5 mb-6">
-            {/* Main duration display */}
-            <View className="items-center pt-2">
-              <Text className="text-gray-400 text-sm font-sans mb-2">
-                TOTAL SLEEP
-              </Text>
-              <View className="flex-row items-center">
-                <Text className="text-[#954CE9] text-4xl font-sans-bold">
-                  {duration}
-                </Text>
-              </View>
-            </View>
-
-            {/* Sleep timeline */}
-            <View className="flex-row justify-between items-center px-6 py-2">
-              <View className="items-center">
-                <View className="bg-[#2D2D2D] p-2 rounded-full mb-1">
-                  <Moon size={20} color="#954CE9" />
-                </View>
-                <Text className="text-gray-400 text-sm font-sans">Bedtime</Text>
-                <Text className="text-white text-md font-sans-medium">
-                  {bedtime}
-                </Text>
-              </View>
-
-              {/* Timeline line */}
-              <View className="flex-1 h-[2px] bg-[#2D2D2D] mx-2">
-                <View
-                  className="h-full bg-[#954CE9]"
-                  style={{ width: "100%" }}
-                />
-              </View>
-
-              <View className="items-center">
-                <View className="bg-[#2D2D2D] p-2 rounded-full mb-1">
-                  <Sun size={20} color="#954CE9" />
-                </View>
-                <Text className="text-gray-400 text-xs font-sans">Wake Up</Text>
-                <Text className="text-white text-sm font-sans-medium">
-                  {wakeup}
-                </Text>
-              </View>
-            </View>
-          </View>
-
-          {/* Sleep Score Card */}
-          <View className="rounded-3xl p-6 mb-6">
-            {/* Header with Sleep Score */}
-            <View className="flex-row justify-between items-center">
-              <Text className="text-foreground text-lg font-sans-bold">
-                Sleep Analysis
-              </Text>
-              <View className="bg-[#954CE9] rounded-full px-3 py-1">
-                <Text className="text-foreground font-sans-medium">
-                  {sleepQuality}%
-                </Text>
-              </View>
-            </View>
-
-            {/* Centered Pie Chart */}
-            <View className="flex items-center w-full">
-              <PieChart
-                data={data}
-                width={screenWidth * 0.7}
-                height={180}
-                hasLegend={false}
-                chartConfig={{
-                  backgroundColor: "#1E1E1E",
-                  backgroundGradientFrom: "#1E1E1E",
-                  backgroundGradientTo: "#1E1E1E",
-                  decimalPlaces: 0,
-                  color: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`,
-                  labelColor: (opacity = 1) =>
-                    `rgba(255, 255, 255, ${opacity})`,
-                  style: {
-                    borderRadius: 16,
-                  },
-                }}
-                accessor={"percentage"}
-                backgroundColor={"transparent"}
-                paddingLeft={"70"}
-                absolute
-              />
-            </View>
-
-            {/* Enhanced Legend */}
-            <View className="flex-row justify-around px-2">
-              {data.map((item, index) => (
-                <View key={index} className="items-center text-center">
-                  <View className="flex-row items-center mb-1">
-                    <View
-                      className="h-3 w-3 rounded-full mr-2"
-                      style={{ backgroundColor: item.color }}
+          {/* Main Tracking Card */}
+          <View className="rounded-2xl bg-[#1E1E30] shadow-lg p-6 mb-6">
+            <Text className="text-white text-xl font-sans-bold">
+              {getMessage()}
+              {userName ? `, ${userName}` : ""}!
+            </Text>
+            <View className="flex-row justify-between items-center mb-8">
+              <View className={`flex-1 ${!isTracking && "mt-10"}`}>
+                {sleepDuration === "00:00:00" && !isTracking ? (
+                  <View className="items-center">
+                    <Text className="text-gray-400 text-xl font-sans-bold mb-4">
+                      You haven't tracked your sleep on{" "}
+                      {formatDate(selectedDate)}
+                    </Text>
+                    <Image
+                      source={require("../../assets/images/sleep1.png")}
+                      style={{ width: 250, height: 150 }}
+                      resizeMode="contain"
                     />
-                    <Text className="text-foreground font-sans">
-                      {item.name}
+                  </View>
+                ) : (
+                  <>
+                    <Text className="text-white font-sans-bold text-3xl -mt-4">
+                      {isTracking
+                        ? formatDuration(elapsedTime, true)
+                        : sleepDuration}
+                    </Text>
+                    <Text className="text-gray-300 font-sans">
+                      {isToday() ? "Today's sleep duration" : "Sleep duration"}
+                    </Text>
+                  </>
+                )}
+
+                {sleepDuration !== "00:00:00" &&
+                  !isTracking &&
+                  (() => {
+                    const currentDate = selectedDate;
+                    const previousDate = new Date(currentDate);
+                    previousDate.setDate(currentDate.getDate() - 1);
+                    const currentHours = getCurrentDaySleepHours();
+
+                    if (
+                      previousDateData &&
+                      previousDateData.duration !== "00:00:00"
+                    ) {
+                      // Convert previous duration to hours
+                      let previousHoursValue = 0;
+                      const parts = previousDateData.duration.split(" ");
+                      parts.forEach((part) => {
+                        if (part.includes("h")) {
+                          previousHoursValue += parseInt(part);
+                        } else if (part.includes("m")) {
+                          previousHoursValue += parseInt(part) / 60;
+                        } else if (part.includes("s")) {
+                          previousHoursValue += parseInt(part) / 3600;
+                        }
+                      });
+
+                      return (
+                        <View className="flex-row items-center gap-2">
+                          <View>
+                            {currentHours > previousHoursValue ? (
+                              <TrendingUp size={16} color="#8A7CFF" />
+                            ) : currentHours < previousHoursValue ? (
+                              <TrendingDown size={16} color="#8A7CFF" />
+                            ) : (
+                              <Minus size={16} color="#8A7CFF" />
+                            )}
+                          </View>
+                          <Text className="font-sans w-60 text-gray-400 text-xs">
+                            {currentHours > previousHoursValue
+                              ? `You slept ${(
+                                  currentHours - previousHoursValue
+                                ).toFixed(1)}h more than ${
+                                  isToday()
+                                    ? "yesterday"
+                                    : previousDate.toLocaleDateString("en-US", {
+                                        month: "short",
+                                        day: "numeric",
+                                      })
+                                }`
+                              : currentHours < previousHoursValue
+                              ? `You slept ${(
+                                  previousHoursValue - currentHours
+                                ).toFixed(1)}h less than ${
+                                  isToday()
+                                    ? "yesterday"
+                                    : previousDate.toLocaleDateString("en-US", {
+                                        month: "short",
+                                        day: "numeric",
+                                      })
+                                }`
+                              : `You slept the same amount as ${
+                                  isToday()
+                                    ? "yesterday"
+                                    : previousDate.toLocaleDateString("en-US", {
+                                        month: "short",
+                                        day: "numeric",
+                                      })
+                                }`}
+                          </Text>
+                        </View>
+                      );
+                    }
+                    return null;
+                  })()}
+              </View>
+
+              {/* Progress Cirle - Sleep Quality */}
+              {(sleepDuration !== "00:00:00" || isTracking) && (
+                <View className="items-center justify-center h-32 w-32">
+                  <Svg
+                    height={size}
+                    width={size}
+                    viewBox={`0 0 ${size} ${size}`}
+                  >
+                    <Circle
+                      cx={size / 2}
+                      cy={size / 2}
+                      r={radius}
+                      stroke="#2D2D2D"
+                      strokeWidth={strokeWidth}
+                      fill="transparent"
+                    />
+                    {/* Progress Circle */}
+                    <Circle
+                      ref={circleRef}
+                      cx={size / 2}
+                      cy={size / 2}
+                      r={radius}
+                      stroke="#8A7CFF"
+                      strokeWidth={strokeWidth}
+                      strokeDasharray={circumference}
+                      strokeDashoffset={strokeDashoffset}
+                      strokeLinecap="round"
+                      fill="transparent"
+                      transform={`rotate(-90, ${size / 2}, ${size / 2})`}
+                    />
+                  </Svg>
+                  <View className="absolute items-center justify-center">
+                    <Text className="text-[#8A7CFF] text-3xl font-sans-bold">
+                      {qualityPercentage}%
+                    </Text>
+                    <Text className="text-gray-300 text-xs font-sans">
+                      QUALITY
                     </Text>
                   </View>
-                  <Text className="text-foreground font-sans-bold">
-                    {item.percentage}%
-                  </Text>
+                </View>
+              )}
+            </View>
+
+            {/* tracking buttons & timeline */}
+            {isToday() ? (
+              isTracking ? (
+                <View className="flex-row -mt-14 space-x-4">
+                  <TouchableOpacity
+                    onPress={handleStopTracking}
+                    className="flex-row items-center bg-red-600 rounded-xl px-6 py-3"
+                  >
+                    <StopCircle size={24} color="white" />
+                    <Text className="text-white font-sans-bold text-lg ml-2">
+                      Stop Tracking
+                    </Text>
+                  </TouchableOpacity>
+                </View>
+              ) : (
+                <View className="-mt-2">
+                  {sleepDuration !== "00:00:00" && (
+                    <View className="flex-row justify-center items-center gap-6 mb-6">
+                      {/* Bedtime */}
+                      <View className="items-center bg-[#2D2D2D]/50 rounded-xl p-4 w-40">
+                        <View className="bg-[#2D2D2D] p-3 rounded-full mb-2">
+                          <Moon size={24} color="#8A7CFF" />
+                        </View>
+                        <Text className="text-gray-400 text-xs text-center">
+                          Bedtime
+                        </Text>
+                        <Text className="text-white text-base font-medium text-center">
+                          {startTime ? formatTime(startTime) : "--:--"}
+                        </Text>
+                      </View>
+
+                      {/* Wake Up */}
+                      <View className="items-center bg-[#2D2D2D]/50 rounded-xl p-4 w-40">
+                        <View className="bg-[#2D2D2D] p-3 rounded-full mb-2">
+                          <Sun size={24} color="#8A7CFF" />
+                        </View>
+                        <Text className="text-gray-400 text-xs text-center">
+                          Wake Up
+                        </Text>
+                        <Text className="text-white text-base font-medium text-center">
+                          {endTime ? formatTime(endTime) : "--:--"}
+                        </Text>
+                      </View>
+                    </View>
+                  )}
+
+                  <View className="flex-row justify-center items-center w-full">
+                    <TouchableOpacity
+                      onPress={() => setModalVisible(true)}
+                      className="flex-row items-center justify-center bg-[#8A7CFF] rounded-xl px-6 py-3 w-[100%]"
+                    >
+                      <Play size={24} color="white" />
+                      <Text className="text-white font-sans-bold text-lg ml-2">
+                        Start Tracking
+                      </Text>
+                    </TouchableOpacity>
+                  </View>
+                </View>
+              )
+            ) : (
+              sleepDuration !== "00:00:00" &&
+              startTime &&
+              endTime && (
+                <View className="flex-row justify-center items-center gap-6">
+                  {/* Bedtime */}
+                  <View className="items-center bg-[#2D2D2D]/50 rounded-xl p-4 w-40">
+                    <View className="bg-[#2D2D2D] p-3 rounded-full mb-2">
+                      <Moon size={24} color="#8A7CFF" />
+                    </View>
+                    <Text className="text-gray-400 text-xs text-center">
+                      Bedtime
+                    </Text>
+                    <Text className="text-white text-base font-medium text-center">
+                      {formatTime(startTime)}
+                    </Text>
+                  </View>
+
+                  {/* Wake Up */}
+                  <View className="items-center bg-[#2D2D2D]/50 rounded-xl p-4 w-40">
+                    <View className="bg-[#2D2D2D] p-3 rounded-full mb-2">
+                      <Sun size={24} color="#8A7CFF" />
+                    </View>
+                    <Text className="text-gray-400 text-xs text-center">
+                      Wake Up
+                    </Text>
+                    <Text className="text-white text-base font-medium text-center">
+                      {formatTime(endTime)}
+                    </Text>
+                  </View>
+                </View>
+              )
+            )}
+          </View>
+
+          {/* Weekly sleep chart */}
+          <View className="bg-[#1E1E30] rounded-xl p-6 mb-8 shadow-lg">
+            <View className="flex-row justify-between items-center mb-4">
+              <Text className="text-white font-sans-bold text-lg">
+                Weekly Sleep
+              </Text>
+              <View className="bg-[#2D2D2D] px-3 py-1 rounded-lg">
+                <Text className="text-[#8A7CFF] font-sans-medium">
+                  {new Date(
+                    new Date().getTime() - 6 * 24 * 60 * 60 * 1000
+                  ).toLocaleDateString("en-PH", {
+                    month: "short",
+                    day: "numeric",
+                  })}{" "}
+                  -{" "}
+                  {new Date().toLocaleDateString("en-US", {
+                    month: "short",
+                    day: "numeric",
+                  })}
+                </Text>
+              </View>
+            </View>
+
+            <View className="flex-row justify-between items-end h-42 mb-3">
+              {sleepProgress.hours.map((hours, index) => (
+                <View key={index} className="items-center">
+                  <View className="items-center">
+                    <Text className="text-gray-400 text-xs mb-1">
+                      {hours < 0.01 ? "0h" : `${hours.toFixed(1)}h`}
+                    </Text>
+                    <View
+                      style={{
+                        height: Math.max(4, (hours / 10) * 100),
+                        opacity: index === 1 ? 1 : 0.7,
+                      }}
+                      className={`w-8 rounded-t-md ${
+                        index === 1 ? "bg-[#8A7CFF]" : "bg-[#8A7CFF]/70"
+                      }`}
+                    />
+                  </View>
                 </View>
               ))}
             </View>
-          </View>
 
-          {/* Weekly Sleep Chart */}
-          <View className="rounded-3xl p-6 mb-6">
-            <Text className="text-foreground text-lg font-sans-bold mb-4">
-              Weekly Sleep
-            </Text>
+            <View className="flex-row justify-between border-t border-[#2D2D2D] pt-3">
+              {["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"].map(
+                (day, index) => (
+                  <Text
+                    key={index}
+                    className={`w-8 text-center ${
+                      index === 1
+                        ? "text-[#8A7CFF] font-sans-medium"
+                        : "text-gray-400 font-sans"
+                    }`}
+                  >
+                    {day}
+                  </Text>
+                )
+              )}
+            </View>
 
-            <LineChart
-              data={sleepData}
-              width={screenWidth - 60}
-              height={180}
-              chartConfig={{
-                backgroundColor: "transparent",
-                backgroundGradientFrom: "transparent",
-                backgroundGradientTo: "transparent",
-                decimalPlaces: 1,
-                color: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`,
-                labelColor: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`,
-                style: {
-                  borderRadius: 16,
-                },
-                propsForDots: {
-                  r: "6",
-                  strokeWidth: "2",
-                  stroke: "#954CE9",
-                },
-                fillShadowGradient: "rgba(149, 76, 233, 0.2)",
-                fillShadowGradientOpacity: 0.2,
-              }}
-              bezier
-              style={{
-                marginVertical: 8,
-                marginHorizontal: -20,
-                borderRadius: 16,
-                backgroundColor: "transparent",
-              }}
-              withShadow={false}
-              transparent={true}
-            />
-
-            <View className="flex-row justify-between mt-2">
-              <View className="items-center">
-                <Text className="text-gray-400 text-xs font-sans">
-                  Avg. Sleep
+            <View className="flex-row justify-between items-center mt-4 bg-[#2D2D2D]/50 p-3 rounded-lg">
+              <View>
+                <Text className="text-gray-300 font-sans-medium">
+                  Weekly Average
                 </Text>
-                <Text className="text-foreground font-semibold font-sans">
-                  {averageSleepTime}
+                <Text className="text-white text-xl font-sans-bold">
+                  {sleepProgress.average.toFixed(1)}h
                 </Text>
               </View>
-
-              <View className="items-center">
-                <Text className="text-gray-400 text-xs font-sans">
-                  Best Day
-                </Text>
-                <Text className="text-foreground font-semibold font-sans">
-                  Sat (9.2h)
-                </Text>
-              </View>
-
-              <View className="items-center">
-                <Text className="text-gray-400 text-xs font-sans">
-                  Worst Day
-                </Text>
-                <Text className="text-foreground font-semibold font-sans">
-                  Fri (6.5h)
-                </Text>
+              <View className="flex-row gap-4">
+                <View className="items-end">
+                  <View className="flex-row items-center gap-1">
+                    <TrendingUp size={16} color="#22c55e" />
+                    <Text className="text-gray-300 font-sans-medium">Best</Text>
+                  </View>
+                  <Text className="text-white text-xl font-sans-bold">
+                    {Math.max(...sleepProgress.hours).toFixed(1)}h
+                  </Text>
+                  <Text className="text-gray-400 text-xs">
+                    {
+                      ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"][
+                        sleepProgress.hours.indexOf(
+                          Math.max(...sleepProgress.hours)
+                        )
+                      ]
+                    }
+                  </Text>
+                </View>
+                <View className="items-end">
+                  <View className="flex-row items-center gap-1">
+                    <TrendingDown size={16} color="#ef4444" />
+                    <Text className="text-gray-300 font-sans-medium">
+                      Worst
+                    </Text>
+                  </View>
+                  <Text className="text-white text-xl font-sans-bold">
+                    {Math.min(...sleepProgress.hours).toFixed(1)}h
+                  </Text>
+                  <Text className="text-gray-400 text-xs">
+                    {
+                      ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"][
+                        sleepProgress.hours.indexOf(
+                          Math.min(...sleepProgress.hours)
+                        )
+                      ]
+                    }
+                  </Text>
+                </View>
               </View>
             </View>
           </View>
-
-          {/* Sleep Tracking */}
-          {/* <View className="rounded-3xl p-6 mb-8">
-            <Text className="text-foreground text-lg font-sans-bold mb-4">
-              Track Tonight's Sleep
-            </Text>
-
-            <View className="flex-row justify-between mb-4">
-              <TouchableOpacity className=" rounded-xl p-4 flex-1 mr-2 items-center">
-                <Clock size={24} color="#954CE9" />
-                <Text className="text-foreground mt-2 font-sans">Bedtime</Text>
-                <Text className="text-[#954CE9] font-bold mt-1 font-sans">
-                  10:30 PM
-                </Text>
-              </TouchableOpacity>
-
-              <TouchableOpacity className=" rounded-xl p-4 flex-1 ml-2 items-center">
-                <Sun size={24} color="#954CE9" />
-                <Text className="text-foreground mt-2 font-sans">Wake Up</Text>
-                <Text className="text-[#954CE9] font-bold mt-1 font-sans">
-                  6:45 AM
-                </Text>
-              </TouchableOpacity>
-            </View>
-          </View> */}
         </ScrollView>
       </SafeAreaView>
     </LinearGradient>
