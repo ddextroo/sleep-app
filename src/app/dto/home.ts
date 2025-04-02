@@ -5,6 +5,7 @@ export const RECOMMENDED_DATA = [
       title: "How to Sleep",
       icon: "bed",
       description: "Tips for better sleep quality",
+      pathName: "/(home)/how_to_sleep"
       
     },
     {
@@ -12,7 +13,8 @@ export const RECOMMENDED_DATA = [
         title: "Calming Sounds",
         icon: "play",
         description: "Relax your mind with soothing sounds",
-      },
+        pathName: "/(home)/calm_sound"
+    },
   ];
   
   export const RECENT_DATA = [
