@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import {
   View,
   Text,
@@ -34,27 +34,38 @@ import {
 import { BlurView } from "expo-blur";
 import { getUserDetails } from "../service/authService";
 import { useAssets } from "expo-asset";
+import { useTrackStore } from "../../store/trackStore";
 
 const screenWidth = Dimensions.get("window").width;
 
 export default function TrackScreen() {
-  const [selectedDate, setSelectedDate] = useState(new Date());
+  const {
+    isTracking,
+    startTime,
+    endTime,
+    elapsedTime,
+    sleepDuration,
+    selectedDate,
+    sleepProgress,
+    previousDateData,
+    userName,
+    setTracking,
+    setStartTime,
+    setEndTime,
+    setElapsedTime,
+    setSleepDuration,
+    setSelectedDate,
+    setSleepProgress,
+    setPreviousDateData,
+    setUserName,
+    incrementElapsedTime,
+  } = useTrackStore();
+
   const [modalVisible, setModalVisible] = useState(false);
-  const [isTracking, setIsTracking] = useState(false);
   const [stopModalVisible, setStopModalVisible] = useState(false);
-  const [sleepDuration, setSleepDuration] = useState("00:00:00");
-  const [startTime, setStartTime] = useState(null);
-  const [endTime, setEndTime] = useState(null);
-  const [elapsedTime, setElapsedTime] = useState(0);
-  const [previousDateData, setPreviousDateData] = useState(null);
-  const [sleepProgress, setSleepProgress] = useState({
-    hours: Array(7).fill(0),
-    average: 0,
-  });
   const intervalRef = useRef(null);
   const pulseAnim = useRef(new Animated.Value(1)).current;
   const circleRef = useRef(null);
-  const [userName, setUserName] = useState("");
 
   // Fetch previous date's sleep data
   useEffect(() => {
@@ -69,7 +80,6 @@ export default function TrackScreen() {
 
   useEffect(() => {
     if (isTracking) {
-      // Start pulse animation
       Animated.loop(
         Animated.sequence([
           Animated.timing(pulseAnim, {
@@ -89,11 +99,11 @@ export default function TrackScreen() {
     }
   }, [isTracking]);
 
-  // Fetch sleep progress data
+  // fetch sleep progress data
   useEffect(() => {
     const fetchSleepProgress = async () => {
       console.log("Fetching sleep progress...");
-      const data = await getSleepProgress(selectedDate);
+      const data = await getSleepProgress();
       console.log("Received sleep progress data:", data);
 
       if (data) {
@@ -104,11 +114,11 @@ export default function TrackScreen() {
     fetchSleepProgress();
   }, [isTracking]);
 
-  // Fetch sleep data for selected date
+  // sleep data for selected date
   useEffect(() => {
     const fetchSleepData = async () => {
       const data = await getSleepDataForDate(selectedDate);
-      console.log("Fetched sleep data:", data); // Add logging
+      console.log("Fetched sleep data:", data);
       if (data) {
         setSleepDuration(data.duration);
         setStartTime(data.startTime);
@@ -122,7 +132,7 @@ export default function TrackScreen() {
     fetchSleepData();
   }, [selectedDate]);
 
-  // Update useEffect to fetch user data using getUserDetails
+  // fetch user data using getUserDetails
   useEffect(() => {
     const fetchUserData = async () => {
       const userDetails = await getUserDetails();
@@ -160,7 +170,7 @@ export default function TrackScreen() {
   };
 
   const startTracking = () => {
-    setIsTracking(true);
+    setTracking(true);
     const now = Date.now();
     setStartTime(now);
     setElapsedTime(0);
@@ -168,16 +178,16 @@ export default function TrackScreen() {
     // Start the timer
     clearInterval(intervalRef.current);
     intervalRef.current = setInterval(() => {
-      setElapsedTime((prev) => prev + 1);
+      incrementElapsedTime();
     }, 1000);
 
-    // Start tracking in Supabase
+    // start tracking in supabase
     startSleepTracking(now, null, 0);
   };
 
   const handleStopTracking = async () => {
     clearInterval(intervalRef.current);
-    setIsTracking(false);
+    setTracking(false);
     const endTime = Date.now();
     const finalDuration = formatDuration(elapsedTime, false);
     setSleepDuration(finalDuration);
@@ -186,7 +196,7 @@ export default function TrackScreen() {
 
     try {
       await startSleepTracking(startTime, endTime, elapsedTime);
-      // Fetch updated data after stopping tracking
+      // get updated data after stop tracking
       const updatedData = await getSleepDataForDate(selectedDate);
       if (updatedData) {
         setSleepDuration(updatedData.duration);
@@ -221,7 +231,7 @@ export default function TrackScreen() {
     });
   };
 
-  // Calculate the quality percentage based on current day's sleep duration
+  // calculate quality
   const getCurrentDaySleepHours = () => {
     if (isTracking) {
       return elapsedTime / 3600; // Convert seconds to hours

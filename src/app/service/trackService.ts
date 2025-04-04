@@ -198,9 +198,6 @@ export const getSleepProgress = async () => {
   return result;
 };
 
-
-
-
 export const getSleepDataForDate = async (date: Date) => {
   const { data: authData, error: authError } = await supabase.auth.getUser();
 
