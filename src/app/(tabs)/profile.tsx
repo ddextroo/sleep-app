@@ -109,21 +109,21 @@ export default function Profile() {
               </Text>
             </View>
           </View> */}
-
+          {/* 
           <View className="w-full  rounded-lg overflow-hidden mb-5">
             <MenuItem
               icon={<Settings size={20} color="#666" />}
               title="Account Settings"
             />
-            {/* <MenuItem
+            <MenuItem
               icon={<CreditCard size={20} color="#666" />}
               title="Payment Methods"
-            /> */}
+            />
             <MenuItem
               icon={<HelpCircle size={20} color="#666" />}
               title="Privacy Policy"
             />
-          </View>
+          </View> */}
 
           <Button
             className="flex flex-row justify-between"
