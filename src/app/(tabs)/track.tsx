@@ -724,7 +724,7 @@ export default function TrackScreen() {
                       day: "numeric",
                     })}{" "}
                     -{" "}
-                    {new Date().toLocaleDateString("en-US", {
+                    {new Date().toLocaleDateString("en-PH", {
                       month: "short",
                       day: "numeric",
                     })}
@@ -758,10 +758,12 @@ export default function TrackScreen() {
                       <View
                         style={{
                           height: Math.max(4, (hours / 10) * 100),
-                          opacity: index === 1 ? 1 : 0.7,
+                          opacity: index === new Date().getDay() - 1 ? 1 : 0.7,
                         }}
                         className={`w-8 rounded-t-md ${
-                          index === 1 ? "bg-[#8A7CFF]" : "bg-[#8A7CFF]/70"
+                          index === new Date().getDay() - 1
+                            ? "bg-[#8A7CFF]"
+                            : "bg-[#8A7CFF]/70"
                         }`}
                       />
                     </View>
@@ -780,7 +782,7 @@ export default function TrackScreen() {
                       <Text
                         key={index}
                         className={`w-8 text-center ${
-                          index === 1
+                          index === new Date().getDay() - 1
                             ? "text-[#8A7CFF] font-sans-medium"
                             : "text-gray-400 font-sans"
                         }`}

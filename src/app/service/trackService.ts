@@ -186,7 +186,8 @@ export const getSleepProgress = async () => {
   const todayIndex = new Date(today).getDay();
   const reorderedData = new Array(7);
   for (let i = 0; i < 7; i++) {
-    reorderedData[i] = thisWeek[(todayIndex - 6 + i + 7) % 7];
+    const adjustedIndex = (todayIndex + 6) % 7; 
+    reorderedData[i] = thisWeek[(adjustedIndex - 6 + i + 7) % 7];
   }
 
   const result = {
