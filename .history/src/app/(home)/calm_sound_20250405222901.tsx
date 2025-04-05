@@ -9,7 +9,7 @@ import { MusicItemSkeleton, TabsSkeleton } from "./components/skeleton";
 
 const SoundItem = ({ item, isPlaying, onTogglePlay }) => (
   <View className="flex-row items-center bg-[#1E1E30] rounded-xl p-3 mb-3">
-    <Image source={ item.coverImage } className="w-14 h-14 rounded-lg" />
+    <Image source={ item.coverImage }} className="w-14 h-14 rounded-lg" />
     <View className="flex-1 ml-3">
       <Text className="text-white font-sans-semibold text-base">{item.title}</Text>
       <Text className="text-gray-400 font-sans text-sm">{item.artist}</Text>
@@ -39,11 +39,11 @@ const CalmSound = () => {
   const [sound, setSound] = useState(null);
   const [audioList, setAudioList] = useState([]);
   const [loading, setLoading] = useState(false);
-  
+
   const [imageAssets] = useAssets([
-    require("~/assets/images/nature.jpg"),
+    require("~/assets/images/nature.png"),
     require("~/assets/images/sleeeepp.jpg"),
-    require("~/assets/images/med.jpg"),
+    require("~/assets/images/med.png"),
   ]);
   const [assets] = useAssets([
     require("~/assets/calm_sounds/nature1.mp3"),
@@ -67,7 +67,7 @@ const CalmSound = () => {
       setLoading(true);
 
       const soundData = [
-        { id: "1", title: "One Summer's Day", artist: "knoa Piano Music", category: "nature", coverImage: imageAssets[0], assetIndex: 0 },
+        { id: "1", title: "One Summer's Day", artist: "knoa Piano Music", category: "nature", coverImage:  imageAssets[0], assetIndex: 0 },
         { id: "2", title: "The Path of Wind", artist: "knoa Piano Music", category: "nature", coverImage:  imageAssets[0], assetIndex: 1 },
         { id: "3", title: "Carrying You", artist: "knoa Piano Music", category: "nature", coverImage:  imageAssets[0], assetIndex: 2 },
         { id: "4", title: "If I Could Be The Ocean", artist: "knoa Piano Music", category: "nature", coverImage:  imageAssets[0], assetIndex: 3 },

@@ -5,7 +5,6 @@ import { Play, Pause, ChevronLeft } from "lucide-react-native";
 import { Audio } from "expo-av";
 import { useAssets } from "expo-asset";
 import { router } from 'expo-router';
-import { MusicItemSkeleton, TabsSkeleton } from "./components/skeleton";
 
 const MusicItem = ({ item, isPlaying, onTogglePlay }) => (
   <View className="flex-row items-center bg-[#1E1E30] rounded-xl p-3 mb-3">
@@ -145,37 +144,26 @@ const ListenStories = () => {
       if (sound) sound.unloadAsync();
     };
   }, [sound]);
-  
-  const renderSkeletons = () => {
-    return Array(4)
-      .fill(0)
-      .map((_, index) => <MusicItemSkeleton key={`skeleton-${index}`} />)
-  }
-  
+
   return (
     <LinearGradient colors={["#121212", "#1E1E30", "#231B36", "#1E1E30", "#121212"]} style={{ flex: 1 }}>
       <SafeAreaView className="flex-1">
         <ScrollView className="px-5 py-5">
-          <View className="flex flex-row items-center gap-x-5">
+          <View className="flex flex-row items-center gap-x-5" >
             <TouchableOpacity onPress={() => router.back()}>
               <View className="p-1">
-                <ChevronLeft color="white" />
+                <ChevronLeft color="white"/>
               </View>
             </TouchableOpacity>
             <Text className="text-foreground font-sans-bold text-3xl py-5">Listen Stories</Text>
           </View>
 
-          {loading ? (
-            <TabsSkeleton />
-          ) : (
-            <View className="flex-row space-x-3 mb-5 gap-x-2">
-              <Tab title="For You" isActive={activeTab === "tab1"} onPress={() => setActiveTab("tab1")} />
-              <Tab title="For Kids" isActive={activeTab === "tab4"} onPress={() => setActiveTab("tab4")} />
-              <Tab title="Reddit Stories" isActive={activeTab === "tab2"} onPress={() => setActiveTab("tab2")} />
-              <Tab title="Horror" isActive={activeTab === "tab3"} onPress={() => setActiveTab("tab3")} />
-            </View>
-          )}
-
+          <View className="flex-row space-x-3 mb-5 gap-x-2">
+            <Tab title="For You" isActive={activeTab === "tab1"} onPress={() => setActiveTab("tab1")} />
+            <Tab title="For Kids" isActive={activeTab === "tab4"} onPress={() => setActiveTab("tab4")} />
+            <Tab title="Reddit Stories" isActive={activeTab === "tab2"} onPress={() => setActiveTab("tab2")} />
+            <Tab title="Horror" isActive={activeTab === "tab3"} onPress={() => setActiveTab("tab3")} />
+          </View>
           <View className="flex flex-row justify-between mb-4">
             <Text className="font-sans text-muted-foreground text-base">
               {activeTab === "tab1" ? "Recommended" : "Trending"}
@@ -186,29 +174,22 @@ const ListenStories = () => {
           </View>
 
           <View className="mt-2">
-            {loading
-              ? renderSkeletons()
-              : audioList
-                  .filter((item) => {
-                    if (activeTab === "tab1") return item.category === "general"
-                    if (activeTab === "tab2") return item.category === "reddit"
-                    if (activeTab === "tab3") return item.category === "horror"
-                    if (activeTab === "tab4") return item.category === "kids"
-                    return false
-                  })
-                  .map((item) => (
-                    <MusicItem
-                      key={item.id}
-                      item={item}
-                      isPlaying={playingId === item.id}
-                      onTogglePlay={handleTogglePlay}
-                    />
-                  ))}
+            {audioList
+              .filter((item) => {
+                if (activeTab === "tab1") return item.category === "general";
+                if (activeTab === "tab2") return item.category === "reddit";
+                if (activeTab === "tab3") return item.category === "horror";
+                if (activeTab === "tab4") return item.category === "kids";
+                return false;
+              })
+              .map((item) => (
+                <MusicItem key={item.id} item={item} isPlaying={playingId === item.id} onTogglePlay={handleTogglePlay} />
+              ))}
           </View>
         </ScrollView>
       </SafeAreaView>
     </LinearGradient>
-  )
-}
+  );
+};
 
 export default ListenStories;

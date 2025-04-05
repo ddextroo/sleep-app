@@ -41,7 +41,7 @@ const CalmSound = () => {
   const [loading, setLoading] = useState(false);
   
   const [imageAssets] = useAssets([
-    require("~/assets/images/nature.jpg"),
+    require("~/assets/images/nature.jng"),
     require("~/assets/images/sleeeepp.jpg"),
     require("~/assets/images/med.jpg"),
   ]);
