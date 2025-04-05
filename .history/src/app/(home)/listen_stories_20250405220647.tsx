@@ -5,7 +5,7 @@ import { Play, Pause, ChevronLeft } from "lucide-react-native";
 import { Audio } from "expo-av";
 import { useAssets } from "expo-asset";
 import { router } from 'expo-router';
-import { MusicItemSkeleton, TabsSkeleton } from "./components/skeleton";
+import { MusicItemSkeleton } from "./components/skeleton";
 
 const MusicItem = ({ item, isPlaying, onTogglePlay }) => (
   <View className="flex-row items-center bg-[#1E1E30] rounded-xl p-3 mb-3">
@@ -151,7 +151,6 @@ const ListenStories = () => {
       .fill(0)
       .map((_, index) => <MusicItemSkeleton key={`skeleton-${index}`} />)
   }
-  
   return (
     <LinearGradient colors={["#121212", "#1E1E30", "#231B36", "#1E1E30", "#121212"]} style={{ flex: 1 }}>
       <SafeAreaView className="flex-1">
@@ -165,7 +164,7 @@ const ListenStories = () => {
             <Text className="text-foreground font-sans-bold text-3xl py-5">Listen Stories</Text>
           </View>
 
-          {loading ? (
+          {isLoading ? (
             <TabsSkeleton />
           ) : (
             <View className="flex-row space-x-3 mb-5 gap-x-2">
@@ -186,7 +185,7 @@ const ListenStories = () => {
           </View>
 
           <View className="mt-2">
-            {loading
+            {isLoading
               ? renderSkeletons()
               : audioList
                   .filter((item) => {

@@ -151,7 +151,6 @@ const ListenStories = () => {
       .fill(0)
       .map((_, index) => <MusicItemSkeleton key={`skeleton-${index}`} />)
   }
-  
   return (
     <LinearGradient colors={["#121212", "#1E1E30", "#231B36", "#1E1E30", "#121212"]} style={{ flex: 1 }}>
       <SafeAreaView className="flex-1">
@@ -186,7 +185,7 @@ const ListenStories = () => {
           </View>
 
           <View className="mt-2">
-            {loading
+            {Loading
               ? renderSkeletons()
               : audioList
                   .filter((item) => {
