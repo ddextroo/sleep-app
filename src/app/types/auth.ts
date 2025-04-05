@@ -5,6 +5,8 @@ export interface AuthLogin {
     password: string;
     setEmail: (email: string) => void;
     setPassword: (password: string) => void;
+    showPassword: boolean;
+    setShowPassword: (showPassword: boolean) => void;
 }
 export interface AuthSignup {
     username: string;
@@ -15,6 +17,8 @@ export interface AuthSignup {
     setEmail: (email: string) => void;
     setPassword: (password: string) => void;
     setGender: (gender: string) => void;    
+    showPassword: boolean;
+    setShowPassword: (showPassword: boolean) => void;
 }
 
 export interface AuthSession {

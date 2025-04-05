@@ -1,5 +1,5 @@
-import { View, Text, SafeAreaView } from "react-native";
-import React, { useEffect, useState } from "react";
+import { View, Text, SafeAreaView, TouchableOpacity } from "react-native";
+import React from "react";
 import { Button } from "../../components/ui/button";
 import { Input } from "~/components/ui/input";
 import { useAuthSignup } from "../store/authStore";
@@ -7,6 +7,8 @@ import { Label } from "~/components/ui/label";
 import { signUpWithEmail } from "../service/authService";
 import { router } from "expo-router";
 import { RadioGroup, RadioGroupItem } from "~/components/ui/radio-group";
+import { Eye } from "lucide-react-native";
+import { EyeClosed } from "lucide-react-native";
 
 export default function Signup() {
   const {
@@ -14,6 +16,8 @@ export default function Signup() {
     email,
     password,
     gender = "Male",
+    showPassword,
+    setShowPassword,
     setUsername,
     setEmail,
     setPassword,
@@ -51,19 +55,19 @@ export default function Signup() {
               Username
             </Label>
             <Input
-              className="w-full"
+              className="w-full font-sans"
               inputMode="text"
               placeholder="e.g juandelagwapo"
               value={username}
               onChangeText={setUsername}
             />
           </View>
-          <View className="w-full gap-y-5 flex">
+          <View className="w-full gap-y-5 flex mt-5">
             <Label nativeID="email_address" className="font-sans">
               Email Address
             </Label>
             <Input
-              className="w-full"
+              className="w-full font-sans"
               inputMode="email"
               placeholder="e.g juandelacruz@gmail.com"
               value={email}
@@ -77,10 +81,20 @@ export default function Signup() {
             <Input
               className="w-full font-sans"
               placeholder="Enter your password"
-              secureTextEntry={true}
+              secureTextEntry={!showPassword}
               value={password}
               onChangeText={setPassword}
             />
+            <TouchableOpacity
+              className="absolute right-3 top-12"
+              onPress={() => setShowPassword(!showPassword)}
+            >
+              {showPassword ? (
+                <EyeClosed size={20} color="#666" />
+              ) : (
+                <Eye size={20} color="#666" />
+              )}
+            </TouchableOpacity>
           </View>
           <View className="flex flex-col py-5">
             <Label nativeID="email_address" className="font-sans mb-5">

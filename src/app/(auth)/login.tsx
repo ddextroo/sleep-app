@@ -1,5 +1,5 @@
-import { View, Text, SafeAreaView } from "react-native";
-import React, { useEffect, useState } from "react";
+import { View, Text, SafeAreaView, TouchableOpacity } from "react-native";
+import React from "react";
 import { useAssets } from "expo-asset";
 import { blurhash } from "../utils/blurhash";
 import { Image } from "expo-image";
@@ -9,10 +9,18 @@ import { useAuthStore, useAuthSessionStore } from "../store/authStore";
 import { Label } from "~/components/ui/label";
 import { signInWithEmail } from "../service/authService";
 import { router } from "expo-router";
+import { Eye, EyeClosed } from "lucide-react-native";
 
 export default function Login() {
   const [assets] = useAssets([require("../../assets/images/icon_hagoc.png")]);
-  const { email, password, setEmail, setPassword } = useAuthStore();
+  const {
+    email,
+    password,
+    setEmail,
+    setPassword,
+    showPassword,
+    setShowPassword,
+  } = useAuthStore();
 
   const handleSignIn = async () => {
     try {
@@ -45,7 +53,7 @@ export default function Login() {
               Email Address
             </Label>
             <Input
-              className="w-full"
+              className="w-full font-sans"
               inputMode="email"
               placeholder="e.g juandelacruz@gmail.com"
               value={email}
@@ -59,10 +67,20 @@ export default function Login() {
             <Input
               className="w-full font-sans"
               placeholder="Enter your password"
-              secureTextEntry={true}
+              secureTextEntry={!showPassword}
               value={password}
               onChangeText={setPassword}
             />
+            <TouchableOpacity
+              className="absolute right-3 top-12"
+              onPress={() => setShowPassword(!showPassword)}
+            >
+              {showPassword ? (
+                <EyeClosed size={20} color="#666" />
+              ) : (
+                <Eye size={20} color="#666" />
+              )}
+            </TouchableOpacity>
           </View>
 
           <Button className="w-full mt-5" onPress={() => handleSignIn()}>

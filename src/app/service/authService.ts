@@ -1,6 +1,14 @@
 import {supabase} from "~/app/utils/supabase"
 import { useAuthSessionStore } from "../store/authStore"
-import { Alert } from "react-native"
+import { Alert, Platform, ToastAndroid } from "react-native"
+
+const showToast = (message: string) => {
+  if (Platform.OS === 'android') {
+    ToastAndroid.show(message, ToastAndroid.SHORT);
+  } else {
+    Alert.alert(message);
+  }
+};
 
 export const signInWithEmail = async (email: string, password: string) => {
     const { data, error } = await supabase.auth.signInWithPassword({
@@ -9,8 +17,10 @@ export const signInWithEmail = async (email: string, password: string) => {
     })
     if (error) {
         console.log(error)
+        showToast(error.message)
         throw new Error(error.message)
     }
+    showToast("Successfully signed in!")
     return data
 }
 
@@ -30,7 +40,7 @@ export const signUpWithEmail = async (email: string, password: string, username:
     })
     if (error) {
         console.log(error)
-        Alert.alert(error.message);
+        showToast(error.message);
         setLoading(false);
         throw new Error(error.message);
       }
@@ -48,19 +58,21 @@ export const signUpWithEmail = async (email: string, password: string, username:
 
             if (userError) {
                 console.error("Error saving user:", userError);
-                Alert.alert("Error saving user user.");
+                showToast("Error saving user details");
                 throw new Error(userError.message);
             }
         } catch (err) {
             console.error("Unexpected error:", err);
+            showToast("An unexpected error occurred");
         }
       }
     
       setSession(session);
       setLoading(false);
-    
+      showToast("Successfully signed up!");
       return session;
 }
+
 export const signOut = async () => {
     const { setSession } = useAuthSessionStore.getState();
 
@@ -68,15 +80,17 @@ export const signOut = async () => {
         const { error } = await supabase.auth.signOut();
         if (error) {
             console.error("Error during sign out:", error);
+            showToast("Error signing out");
             throw new Error(error.message);
         }
 
         // Clear session in the store
         setSession(null);
+        showToast("Successfully signed out!");
 
-        console.log("User successfully signed out.");
     } catch (err) {
         console.error("Unexpected error during sign out:", err);
+        showToast("Failed to sign out");
         throw new Error("Failed to sign out.");
     }
 };
@@ -85,6 +99,7 @@ export const getUserDetails = async () => {
     const { data: userData, error: userError } = await supabase.auth.getUser();
     if (userError || !userData?.user) {
         console.error("Error fetching user:", userError);
+        showToast("Error fetching user details");
         throw new Error(userError?.message || "User not found");
       }
 
@@ -96,8 +111,9 @@ export const getUserDetails = async () => {
 
   if (profileError) {
     console.error("Error fetching profile:", profileError);
+    showToast("Error fetching user profile");
     throw new Error(profileError.message);
   }
 
-  return {  profile };
+  return { profile };
 }

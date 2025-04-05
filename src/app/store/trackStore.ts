@@ -23,6 +23,18 @@ interface TrackState {
   setPreviousDateData: (data: any) => void;
   setUserName: (name: string) => void;
   incrementElapsedTime: () => void;
+  modalVisible: boolean;
+  setModalVisible: (visible: boolean) => void;
+  stopModalVisible: boolean;
+  setStopModalVisible: (visible: boolean) => void;
+  isLoading: boolean;
+  setIsLoading: (loading: boolean) => void;
+  isUserLoading: boolean;
+  setIsUserLoading: (loading: boolean) => void;
+  isSleepDataLoading: boolean;
+  setIsSleepDataLoading: (loading: boolean) => void;
+  isProgressLoading: boolean;
+  setIsProgressLoading: (loading: boolean) => void;
 }
 
 export const useTrackStore = create<TrackState>((set) => ({
@@ -48,4 +60,16 @@ export const useTrackStore = create<TrackState>((set) => ({
   setPreviousDateData: (previousDateData) => set({ previousDateData }),
   setUserName: (userName) => set({ userName }),
   incrementElapsedTime: () => set((state) => ({ elapsedTime: state.elapsedTime + 1 })),
+  modalVisible: false,
+  setModalVisible: (modalVisible) => set({ modalVisible }),
+  stopModalVisible: false,
+  setStopModalVisible: (stopModalVisible) => set({ stopModalVisible }),
+  isLoading: true,
+  setIsLoading: (isLoading) => set({ isLoading }),
+  isUserLoading: true,
+  setIsUserLoading: (isUserLoading) => set({ isUserLoading }),
+  isSleepDataLoading: true,
+  setIsSleepDataLoading: (isSleepDataLoading) => set({ isSleepDataLoading }),
+  isProgressLoading: true,
+  setIsProgressLoading: (isProgressLoading) => set({ isProgressLoading }),
 })); 

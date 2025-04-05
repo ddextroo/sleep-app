@@ -8,6 +8,8 @@ export const useAuthStore = create<AuthLogin>((set) => ({
  password: '',
  setEmail: (email) => set({email}),
  setPassword: (password) => set({password}),
+ showPassword: false,
+ setShowPassword: (showPassword) => set({showPassword}),
 }))
 
 export const useAuthSignup = create<AuthSignup>((set) => ({
@@ -19,6 +21,8 @@ export const useAuthSignup = create<AuthSignup>((set) => ({
  setEmail: (email) => set({email}),
  setPassword: (password) => set({password}),
  setGender: (gender) => set({gender}),
+ showPassword: false,
+ setShowPassword: (showPassword) => set({showPassword}),
 }))
 
 export const useAuthSessionStore = create<AuthSession>((set) => ({

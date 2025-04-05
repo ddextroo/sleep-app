@@ -20,7 +20,6 @@ import {
   ChevronRight,
   StopCircle,
   Play,
-  BarChart3,
   TrendingUp,
   TrendingDown,
   Minus,
@@ -34,9 +33,9 @@ import {
 import { BlurView } from "expo-blur";
 import { getUserDetails } from "../service/authService";
 import { useAssets } from "expo-asset";
-import { useTrackStore } from "../../store/trackStore";
-
-const screenWidth = Dimensions.get("window").width;
+import { useTrackStore } from "../store/trackStore";
+import { Skeleton } from "~/components/ui/skeleton";
+import { cn } from "~/lib/utils";
 
 export default function TrackScreen() {
   const {
@@ -59,10 +58,20 @@ export default function TrackScreen() {
     setPreviousDateData,
     setUserName,
     incrementElapsedTime,
+    modalVisible,
+    setModalVisible,
+    stopModalVisible,
+    setStopModalVisible,
+    isLoading,
+    setIsLoading,
+    isUserLoading,
+    setIsUserLoading,
+    isSleepDataLoading,
+    setIsSleepDataLoading,
+    isProgressLoading,
+    setIsProgressLoading,
   } = useTrackStore();
 
-  const [modalVisible, setModalVisible] = useState(false);
-  const [stopModalVisible, setStopModalVisible] = useState(false);
   const intervalRef = useRef(null);
   const pulseAnim = useRef(new Animated.Value(1)).current;
   const circleRef = useRef(null);
@@ -70,10 +79,12 @@ export default function TrackScreen() {
   // Fetch previous date's sleep data
   useEffect(() => {
     const fetchPreviousData = async () => {
+      setIsLoading(true);
       const previousDate = new Date(selectedDate);
       previousDate.setDate(previousDate.getDate() - 1);
       const data = await getSleepDataForDate(previousDate);
       setPreviousDateData(data);
+      setIsLoading(false);
     };
     fetchPreviousData();
   }, [selectedDate]);
@@ -102,6 +113,7 @@ export default function TrackScreen() {
   // fetch sleep progress data
   useEffect(() => {
     const fetchSleepProgress = async () => {
+      setIsProgressLoading(true);
       console.log("Fetching sleep progress...");
       const data = await getSleepProgress();
       console.log("Received sleep progress data:", data);
@@ -110,6 +122,7 @@ export default function TrackScreen() {
         console.log("Sleep progress data:", data);
         setSleepProgress(data);
       }
+      setIsProgressLoading(false);
     };
     fetchSleepProgress();
   }, [isTracking]);
@@ -117,6 +130,7 @@ export default function TrackScreen() {
   // sleep data for selected date
   useEffect(() => {
     const fetchSleepData = async () => {
+      setIsSleepDataLoading(true);
       const data = await getSleepDataForDate(selectedDate);
       console.log("Fetched sleep data:", data);
       if (data) {
@@ -128,6 +142,7 @@ export default function TrackScreen() {
         setStartTime(null);
         setEndTime(null);
       }
+      setIsSleepDataLoading(false);
     };
     fetchSleepData();
   }, [selectedDate]);
@@ -135,10 +150,12 @@ export default function TrackScreen() {
   // fetch user data using getUserDetails
   useEffect(() => {
     const fetchUserData = async () => {
+      setIsUserLoading(true);
       const userDetails = await getUserDetails();
       if (userDetails?.profile?.username) {
         setUserName(userDetails.profile.username);
       }
+      setIsUserLoading(false);
     };
     fetchUserData();
   }, []);
@@ -407,9 +424,13 @@ export default function TrackScreen() {
             >
               <ChevronLeft size={20} color="#8A7CFF" />
             </TouchableOpacity>
-            <Text className="text-white text-lg font-sans-medium">
-              {formatDate(selectedDate)}
-            </Text>
+            {isLoading ? (
+              <Skeleton className="h-6 w-20" />
+            ) : (
+              <Text className="text-white text-lg font-sans-medium">
+                {formatDate(selectedDate)}
+              </Text>
+            )}
             <TouchableOpacity
               onPress={() => navigateDate(1)}
               className="bg-[#2D2D2D] p-2 rounded-lg"
@@ -420,13 +441,22 @@ export default function TrackScreen() {
 
           {/* Main Tracking Card */}
           <View className="rounded-2xl bg-[#1E1E30] shadow-lg p-6 mb-6">
-            <Text className="text-white text-xl font-sans-bold">
-              {getMessage()}
-              {userName ? `, ${userName}` : ""}!
-            </Text>
+            {isUserLoading ? (
+              <Skeleton className="h-7 w-48 mb-2" />
+            ) : (
+              <Text className="text-white text-xl font-sans-bold">
+                {getMessage()}
+                {userName ? `, ${userName}` : ""}!
+              </Text>
+            )}
             <View className="flex-row justify-between items-center mb-8">
               <View className={`flex-1 ${!isTracking && "mt-10"}`}>
-                {sleepDuration === "00:00:00" && !isTracking ? (
+                {isSleepDataLoading ? (
+                  <View>
+                    <Skeleton className="h-10 w-36 mb-2" />
+                    <Skeleton className="h-5 w-48" />
+                  </View>
+                ) : sleepDuration === "00:00:00" && !isTracking ? (
                   <View className="items-center">
                     <Text className="text-gray-400 text-xl font-sans-bold mb-4">
                       You haven't tracked your sleep on{" "}
@@ -451,7 +481,10 @@ export default function TrackScreen() {
                   </>
                 )}
 
-                {sleepDuration !== "00:00:00" &&
+                {isLoading ? (
+                  <Skeleton className="h-5 w-60 mt-2" />
+                ) : (
+                  sleepDuration !== "00:00:00" &&
                   !isTracking &&
                   (() => {
                     const currentDate = selectedDate;
@@ -523,54 +556,64 @@ export default function TrackScreen() {
                       );
                     }
                     return null;
-                  })()}
+                  })()
+                )}
               </View>
 
-              {/* Progress Cirle - Sleep Quality */}
-              {(sleepDuration !== "00:00:00" || isTracking) && (
-                <View className="items-center justify-center h-32 w-32">
-                  <Svg
-                    height={size}
-                    width={size}
-                    viewBox={`0 0 ${size} ${size}`}
-                  >
-                    <Circle
-                      cx={size / 2}
-                      cy={size / 2}
-                      r={radius}
-                      stroke="#2D2D2D"
-                      strokeWidth={strokeWidth}
-                      fill="transparent"
-                    />
-                    {/* Progress Circle */}
-                    <Circle
-                      ref={circleRef}
-                      cx={size / 2}
-                      cy={size / 2}
-                      r={radius}
-                      stroke="#8A7CFF"
-                      strokeWidth={strokeWidth}
-                      strokeDasharray={circumference}
-                      strokeDashoffset={strokeDashoffset}
-                      strokeLinecap="round"
-                      fill="transparent"
-                      transform={`rotate(-90, ${size / 2}, ${size / 2})`}
-                    />
-                  </Svg>
-                  <View className="absolute items-center justify-center">
-                    <Text className="text-[#8A7CFF] text-3xl font-sans-bold">
-                      {qualityPercentage}%
-                    </Text>
-                    <Text className="text-gray-300 text-xs font-sans">
-                      QUALITY
-                    </Text>
+              {/* Progress Circle - Sleep Quality */}
+              {isSleepDataLoading ? (
+                <Skeleton className="h-32 w-32 rounded-full" />
+              ) : (
+                (sleepDuration !== "00:00:00" || isTracking) && (
+                  <View className="items-center justify-center h-32 w-32">
+                    <Svg
+                      height={size}
+                      width={size}
+                      viewBox={`0 0 ${size} ${size}`}
+                    >
+                      <Circle
+                        cx={size / 2}
+                        cy={size / 2}
+                        r={radius}
+                        stroke="#2D2D2D"
+                        strokeWidth={strokeWidth}
+                        fill="transparent"
+                      />
+                      {/* Progress Circle */}
+                      <Circle
+                        ref={circleRef}
+                        cx={size / 2}
+                        cy={size / 2}
+                        r={radius}
+                        stroke="#8A7CFF"
+                        strokeWidth={strokeWidth}
+                        strokeDasharray={circumference}
+                        strokeDashoffset={strokeDashoffset}
+                        strokeLinecap="round"
+                        fill="transparent"
+                        transform={`rotate(-90, ${size / 2}, ${size / 2})`}
+                      />
+                    </Svg>
+                    <View className="absolute items-center justify-center">
+                      <Text className="text-[#8A7CFF] text-3xl font-sans-bold">
+                        {qualityPercentage}%
+                      </Text>
+                      <Text className="text-gray-300 text-xs font-sans">
+                        QUALITY
+                      </Text>
+                    </View>
                   </View>
-                </View>
+                )
               )}
             </View>
 
             {/* tracking buttons & timeline */}
-            {isToday() ? (
+            {isSleepDataLoading ? (
+              <View className="flex-row justify-center items-center gap-6">
+                <Skeleton className="h-24 w-40 rounded-xl" />
+                <Skeleton className="h-24 w-40 rounded-xl" />
+              </View>
+            ) : isToday() ? (
               isTracking ? (
                 <View className="flex-row -mt-14 space-x-4">
                   <TouchableOpacity
@@ -669,110 +712,159 @@ export default function TrackScreen() {
               <Text className="text-white font-sans-bold text-lg">
                 Weekly Sleep
               </Text>
-              <View className="bg-[#2D2D2D] px-3 py-1 rounded-lg">
-                <Text className="text-[#8A7CFF] font-sans-medium">
-                  {new Date(
-                    new Date().getTime() - 6 * 24 * 60 * 60 * 1000
-                  ).toLocaleDateString("en-PH", {
-                    month: "short",
-                    day: "numeric",
-                  })}{" "}
-                  -{" "}
-                  {new Date().toLocaleDateString("en-US", {
-                    month: "short",
-                    day: "numeric",
-                  })}
-                </Text>
-              </View>
-            </View>
-
-            <View className="flex-row justify-between items-end h-42 mb-3">
-              {sleepProgress.hours.map((hours, index) => (
-                <View key={index} className="items-center">
-                  <View className="items-center">
-                    <Text className="text-gray-400 text-xs mb-1">
-                      {hours < 0.01 ? "0h" : `${hours.toFixed(1)}h`}
-                    </Text>
-                    <View
-                      style={{
-                        height: Math.max(4, (hours / 10) * 100),
-                        opacity: index === 1 ? 1 : 0.7,
-                      }}
-                      className={`w-8 rounded-t-md ${
-                        index === 1 ? "bg-[#8A7CFF]" : "bg-[#8A7CFF]/70"
-                      }`}
-                    />
-                  </View>
-                </View>
-              ))}
-            </View>
-
-            <View className="flex-row justify-between border-t border-[#2D2D2D] pt-3">
-              {["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"].map(
-                (day, index) => (
-                  <Text
-                    key={index}
-                    className={`w-8 text-center ${
-                      index === 1
-                        ? "text-[#8A7CFF] font-sans-medium"
-                        : "text-gray-400 font-sans"
-                    }`}
-                  >
-                    {day}
+              {isProgressLoading ? (
+                <Skeleton className="h-6 w-32 rounded-lg" />
+              ) : (
+                <View className="bg-[#2D2D2D] px-3 py-1 rounded-lg">
+                  <Text className="text-[#8A7CFF] font-sans-medium">
+                    {new Date(
+                      new Date().getTime() - 6 * 24 * 60 * 60 * 1000
+                    ).toLocaleDateString("en-PH", {
+                      month: "short",
+                      day: "numeric",
+                    })}{" "}
+                    -{" "}
+                    {new Date().toLocaleDateString("en-US", {
+                      month: "short",
+                      day: "numeric",
+                    })}
                   </Text>
-                )
+                </View>
               )}
             </View>
 
-            <View className="flex-row justify-between items-center mt-4 bg-[#2D2D2D]/50 p-3 rounded-lg">
-              <View>
-                <Text className="text-gray-300 font-sans-medium">
-                  Weekly Average
-                </Text>
-                <Text className="text-white text-xl font-sans-bold">
-                  {sleepProgress.average.toFixed(1)}h
-                </Text>
-              </View>
-              <View className="flex-row gap-4">
-                <View className="items-end">
-                  <View className="flex-row items-center gap-1">
-                    <TrendingUp size={16} color="#22c55e" />
-                    <Text className="text-gray-300 font-sans-medium">Best</Text>
+            {isProgressLoading ? (
+              <View className="flex-row justify-between items-end h-42 mb-3">
+                {[0, 1, 2, 3, 4, 5, 6].map((index) => (
+                  <View key={index} className="items-center">
+                    <Skeleton className="h-4 w-8 mb-1" />
+                    <Skeleton
+                      className={cn(
+                        "w-8 rounded-t-md",
+                        `h-${Math.floor(Math.random() * 20) + 10}`
+                      )}
+                    />
                   </View>
-                  <Text className="text-white text-xl font-sans-bold">
-                    {Math.max(...sleepProgress.hours).toFixed(1)}h
-                  </Text>
-                  <Text className="text-gray-400 text-xs">
-                    {
-                      ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"][
-                        sleepProgress.hours.indexOf(
-                          Math.max(...sleepProgress.hours)
-                        )
-                      ]
-                    }
-                  </Text>
-                </View>
-                <View className="items-end">
-                  <View className="flex-row items-center gap-1">
-                    <TrendingDown size={16} color="#ef4444" />
+                ))}
+              </View>
+            ) : (
+              <View className="flex-row justify-between items-end h-42 mb-3">
+                {sleepProgress.hours.map((hours, index) => (
+                  <View key={index} className="items-center">
+                    <View className="items-center">
+                      <Text className="text-gray-400 text-xs mb-1">
+                        {hours < 0.01 ? "0h" : `${hours.toFixed(1)}h`}
+                      </Text>
+                      <View
+                        style={{
+                          height: Math.max(4, (hours / 10) * 100),
+                          opacity: index === 1 ? 1 : 0.7,
+                        }}
+                        className={`w-8 rounded-t-md ${
+                          index === 1 ? "bg-[#8A7CFF]" : "bg-[#8A7CFF]/70"
+                        }`}
+                      />
+                    </View>
+                  </View>
+                ))}
+              </View>
+            )}
+
+            <View className="flex-row justify-between border-t border-[#2D2D2D] pt-3">
+              {isProgressLoading
+                ? [0, 1, 2, 3, 4, 5, 6].map((index) => (
+                    <Skeleton key={index} className="h-4 w-8" />
+                  ))
+                : ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"].map(
+                    (day, index) => (
+                      <Text
+                        key={index}
+                        className={`w-8 text-center ${
+                          index === 1
+                            ? "text-[#8A7CFF] font-sans-medium"
+                            : "text-gray-400 font-sans"
+                        }`}
+                      >
+                        {day}
+                      </Text>
+                    )
+                  )}
+            </View>
+
+            <View className="flex-row justify-between items-center mt-4 bg-[#2D2D2D]/50 p-3 rounded-lg">
+              {isProgressLoading ? (
+                <>
+                  <View>
+                    <Skeleton className="h-5 w-32 mb-2" />
+                    <Skeleton className="h-7 w-20" />
+                  </View>
+                  <View className="flex-row gap-4">
+                    <View className="items-end">
+                      <Skeleton className="h-5 w-16 mb-2" />
+                      <Skeleton className="h-7 w-14 mb-1" />
+                      <Skeleton className="h-3 w-8" />
+                    </View>
+                    <View className="items-end">
+                      <Skeleton className="h-5 w-16 mb-2" />
+                      <Skeleton className="h-7 w-14 mb-1" />
+                      <Skeleton className="h-3 w-8" />
+                    </View>
+                  </View>
+                </>
+              ) : (
+                <>
+                  <View>
                     <Text className="text-gray-300 font-sans-medium">
-                      Worst
+                      Weekly Average
+                    </Text>
+                    <Text className="text-white text-xl font-sans-bold">
+                      {sleepProgress.average.toFixed(1)}h
                     </Text>
                   </View>
-                  <Text className="text-white text-xl font-sans-bold">
-                    {Math.min(...sleepProgress.hours).toFixed(1)}h
-                  </Text>
-                  <Text className="text-gray-400 text-xs">
-                    {
-                      ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"][
-                        sleepProgress.hours.indexOf(
-                          Math.min(...sleepProgress.hours)
-                        )
-                      ]
-                    }
-                  </Text>
-                </View>
-              </View>
+                  <View className="flex-row gap-4">
+                    <View className="items-end">
+                      <View className="flex-row items-center gap-1">
+                        <TrendingUp size={16} color="#22c55e" />
+                        <Text className="text-gray-300 font-sans-medium">
+                          Best
+                        </Text>
+                      </View>
+                      <Text className="text-white text-xl font-sans-bold">
+                        {Math.max(...sleepProgress.hours).toFixed(1)}h
+                      </Text>
+                      <Text className="text-gray-400 text-xs">
+                        {
+                          ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"][
+                            sleepProgress.hours.indexOf(
+                              Math.max(...sleepProgress.hours)
+                            )
+                          ]
+                        }
+                      </Text>
+                    </View>
+                    <View className="items-end">
+                      <View className="flex-row items-center gap-1">
+                        <TrendingDown size={16} color="#ef4444" />
+                        <Text className="text-gray-300 font-sans-medium">
+                          Worst
+                        </Text>
+                      </View>
+                      <Text className="text-white text-xl font-sans-bold">
+                        {Math.min(...sleepProgress.hours).toFixed(1)}h
+                      </Text>
+                      <Text className="text-gray-400 text-xs">
+                        {
+                          ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"][
+                            sleepProgress.hours.indexOf(
+                              Math.min(...sleepProgress.hours)
+                            )
+                          ]
+                        }
+                      </Text>
+                    </View>
+                  </View>
+                </>
+              )}
             </View>
           </View>
         </ScrollView>
