@@ -1,27 +1,20 @@
-import {
-  Play,
-  BookOpen,
-  Clock,
-  Brain,
-  BedDouble,
-  Moon,
-} from "lucide-react-native";
+import { Feather } from "@expo/vector-icons";
 
 export const getIcon = (iconName) => {
   switch (iconName) {
     case "play":
-      return <Play size={18} color="white" />;
+      return <Feather name="play" size={18} color="white" />;
     case "book":
-      return <BookOpen size={18} color="white" />;
+      return <Feather name="book" size={18} color="white" />;
     case "clock":
-      return <Clock size={18} color="white" />;
+      return <Feather name="clock" size={18} color="white" />;
     case "brain":
-      return <Brain size={18} color="white" />;
+      return <Feather name="activity" size={18} color="white" />;
     case "bed":
-      return <BedDouble size={18} color="white" />;
+      return <Feather name="home" size={18} color="white" />;
     case "moon":
-      return <Moon size={18} color="white" />;
+      return <Feather name="moon" size={18} color="white" />;
     default:
-      return <Play size={18} color="white" />;
+      return <Feather name="play" size={18} color="white" />;
   }
 };

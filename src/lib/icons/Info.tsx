@@ -1,4 +1,6 @@
-import { Info } from 'lucide-react-native';
-import { iconWithClassName } from './iconWithClassName';
+import { Feather } from "@expo/vector-icons";
+import { iconWithClassName } from "./iconWithClassName";
+
+const Info = Feather;
 iconWithClassName(Info);
 export { Info };

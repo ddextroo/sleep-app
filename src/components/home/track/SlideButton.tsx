@@ -7,7 +7,7 @@ import {
   StyleSheet,
   Dimensions,
 } from "react-native";
-import { Moon, X } from "lucide-react-native";
+import { Feather } from "@expo/vector-icons";
 
 const { width } = Dimensions.get("window");
 
@@ -83,7 +83,7 @@ const SleepTrackingFAB = ({ onStartTracking }) => {
                 Start Sleep Tracking
               </Animated.Text>
               <Animated.View style={styles.iconContainer}>
-                <Moon size={24} color="#FFFFFF" />
+                <Feather name="moon" size={24} color="#FFFFFF" />
               </Animated.View>
             </>
           ) : (
@@ -93,7 +93,7 @@ const SleepTrackingFAB = ({ onStartTracking }) => {
                 { transform: [{ rotate: iconRotate }] },
               ]}
             >
-              <Moon size={24} color="#FFFFFF" />
+              <Feather name="moon" size={24} color="#FFFFFF" />
             </Animated.View>
           )}
         </TouchableOpacity>
@@ -101,7 +101,7 @@ const SleepTrackingFAB = ({ onStartTracking }) => {
 
       {expanded && (
         <TouchableOpacity style={styles.closeButton} onPress={toggleExpand}>
-          <X size={20} color="#954CE9" />
+          <Feather name="x" size={20} color="#954CE9" />
         </TouchableOpacity>
       )}
     </View>

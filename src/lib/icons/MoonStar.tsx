@@ -1,4 +1,6 @@
-import { MoonStar } from 'lucide-react-native';
-import { iconWithClassName } from './iconWithClassName';
+import { Feather } from "@expo/vector-icons";
+import { iconWithClassName } from "./iconWithClassName";
+
+const MoonStar = Feather;
 iconWithClassName(MoonStar);
 export { MoonStar };

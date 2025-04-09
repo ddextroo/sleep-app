@@ -76,6 +76,6 @@ module.exports = {
         },
       });
     },
+    require("tailwindcss-animate"),
   ],
-  plugins: [require("tailwindcss-animate")],
 };

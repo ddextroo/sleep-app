@@ -1,4 +1,10 @@
-import { View, Text, SafeAreaView, TouchableOpacity } from "react-native";
+import {
+  View,
+  Text,
+  SafeAreaView,
+  TouchableOpacity,
+  TextInput,
+} from "react-native";
 import React from "react";
 import { Button } from "../../components/ui/button";
 import { Input } from "~/components/ui/input";
@@ -7,8 +13,8 @@ import { Label } from "~/components/ui/label";
 import { signUpWithEmail } from "../service/authService";
 import { router } from "expo-router";
 import { RadioGroup, RadioGroupItem } from "~/components/ui/radio-group";
-import { Eye } from "lucide-react-native";
-import { EyeClosed } from "lucide-react-native";
+import { LinearGradient } from "expo-linear-gradient";
+import { Feather } from "@expo/vector-icons";
 
 export default function Signup() {
   const {
@@ -90,9 +96,9 @@ export default function Signup() {
               onPress={() => setShowPassword(!showPassword)}
             >
               {showPassword ? (
-                <EyeClosed size={20} color="#666" />
+                <Feather name="eye-off" size={20} color="#666" />
               ) : (
-                <Eye size={20} color="#666" />
+                <Feather name="eye" size={20} color="#666" />
               )}
             </TouchableOpacity>
           </View>

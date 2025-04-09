@@ -1,4 +1,4 @@
-import { ChevronRight } from "lucide-react-native";
+import { Feather } from "@expo/vector-icons";
 import { TouchableOpacity, View, Text } from "react-native";
 
 export default function MenuItem({ icon, title }) {
@@ -8,7 +8,7 @@ export default function MenuItem({ icon, title }) {
         {icon}
         <Text className="font-sans text-foreground">{title}</Text>
       </View>
-      <ChevronRight size={20} color="#666" />
+      <Feather name="chevron-right" size={20} color="#666" />
     </TouchableOpacity>
   );
 }

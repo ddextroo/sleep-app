@@ -1,17 +1,26 @@
-import { View, Text, Image, TouchableOpacity, ScrollView, SafeAreaView } from "react-native";
+import {
+  View,
+  Text,
+  Image,
+  TouchableOpacity,
+  ScrollView,
+  SafeAreaView,
+} from "react-native";
 import React, { useEffect, useState } from "react";
 import { LinearGradient } from "expo-linear-gradient";
-import { Play, Pause, ChevronLeft } from "lucide-react-native";
+import { Feather } from "@expo/vector-icons";
 import { Audio } from "expo-av";
 import { useAssets } from "expo-asset";
-import { router } from 'expo-router';
+import { router } from "expo-router";
 import { MusicItemSkeleton, TabsSkeleton } from "./components/skeleton";
 
 const MusicItem = ({ item, isPlaying, onTogglePlay }) => (
   <View className="flex-row items-center bg-[#1E1E30] rounded-xl p-3 mb-3">
     <Image source={item.coverImage} className="w-14 h-14 rounded-lg" />
     <View className="flex-1 ml-3">
-      <Text className="text-white font-sans-semibold text-base">{item.title}</Text>
+      <Text className="text-white font-sans-semibold text-base">
+        {item.title}
+      </Text>
       <Text className="text-gray-400 font-sans text-sm">{item.artist}</Text>
     </View>
     <Text className="text-gray-400 mr-3">{item.duration || "Loading..."}</Text>
@@ -19,7 +28,11 @@ const MusicItem = ({ item, isPlaying, onTogglePlay }) => (
       onPress={() => onTogglePlay(item)}
       className="w-10 h-10 bg-[#2A2A40] rounded-full items-center justify-center"
     >
-      {isPlaying ? <Pause size={18} color="#FFFFFF" /> : <Play size={18} color="#FFFFFF" fill="#FFFFFF" />}
+      {isPlaying ? (
+        <Feather name="pause" size={18} color="#FFFFFF" />
+      ) : (
+        <Feather name="play" size={18} color="#FFFFFF" />
+      )}
     </TouchableOpacity>
   </View>
 );
@@ -27,9 +40,17 @@ const MusicItem = ({ item, isPlaying, onTogglePlay }) => (
 const Tab = ({ title, isActive, onPress }) => (
   <TouchableOpacity
     onPress={onPress}
-    className={`px-4 py-2 rounded-full ${isActive ? "bg-[#5D3FD3]" : "bg-[#2A2A40]"}`}
+    className={`px-4 py-2 rounded-full ${
+      isActive ? "bg-[#5D3FD3]" : "bg-[#2A2A40]"
+    }`}
   >
-    <Text className={`font-sans-medium ${isActive ? "text-white" : "text-gray-400"}`}>{title}</Text>
+    <Text
+      className={`font-sans-medium ${
+        isActive ? "text-white" : "text-gray-400"
+      }`}
+    >
+      {title}
+    </Text>
   </TouchableOpacity>
 );
 
@@ -44,7 +65,7 @@ const ListenStories = () => {
     require("~/assets/images/loveradio.png"),
     require("~/assets/images/reddit.jpg"),
     require("~/assets/images/horror.png"),
-    require("~/assets/images/bedtime.png"),
+    require("~/assets/images/bedtime.jpeg"),
   ]);
   const [assets] = useAssets([
     require("~/assets/listen_stories/djraqi1.mp3"),
@@ -61,20 +82,84 @@ const ListenStories = () => {
   useEffect(() => {
     const loadAudioMetadata = async () => {
       if (!assets) {
-        setLoading(true)
-        return
+        setLoading(true);
+        return;
       }
       setLoading(true);
       const audioData = [
-        { id: "1", title: "He was my favorite 'Hello' and my hardest 'Goodbye'", artist: "Love Radio Manila", coverImage: imageAssets[0], assetIndex: 0, category: "general" },
-        { id: "2", title: "Kinuha akong ninong ni EX!", artist: "Love Radio Manila", coverImage: imageAssets[0], assetIndex: 1, category: "general" },
-        { id: "3", title: "Pinagpalit niya ang 8 years sa babaeng kakakilala lang niya", artist: "Love Radio Manila", coverImage: imageAssets[0], assetIndex: 2, category: "general" },
-        { id: "4", title: "Excluded From My Sisters Wedding", artist: "Narrator", coverImage: imageAssets[1], assetIndex: 3, category: "reddit" },
-        { id: "5", title: "Wife Left Me And Came Back With A Baby, Begging For A Second Chance", artist: "Narrator", coverImage: imageAssets[1], assetIndex: 4, category: "reddit" },
-        { id: "6", title: "The Whispering Shadows", artist: "Horror Tales", coverImage: imageAssets[2], assetIndex: 5, category: "horror" },
-        { id: "7", title: "Something's Watching Me At Night", artist: "Creepy Narrator", coverImage: imageAssets[2], assetIndex: 6, category: "horror" },
-        { id: "8", title: "It's A Firefly Night!", artist: "Kids Storytime", coverImage: imageAssets[3], assetIndex: 7, category: "kids" },
-        { id: "9", title: "The Little Bunny's Big Day", artist: "Kids Narrator", coverImage: imageAssets[3], assetIndex: 8, category: "kids" }
+        {
+          id: "1",
+          title: "He was my favorite 'Hello' and my hardest 'Goodbye'",
+          artist: "Love Radio Manila",
+          coverImage: imageAssets[0],
+          assetIndex: 0,
+          category: "general",
+        },
+        {
+          id: "2",
+          title: "Kinuha akong ninong ni EX!",
+          artist: "Love Radio Manila",
+          coverImage: imageAssets[0],
+          assetIndex: 1,
+          category: "general",
+        },
+        {
+          id: "3",
+          title: "Pinagpalit niya ang 8 years sa babaeng kakakilala lang niya",
+          artist: "Love Radio Manila",
+          coverImage: imageAssets[0],
+          assetIndex: 2,
+          category: "general",
+        },
+        {
+          id: "4",
+          title: "Excluded From My Sisters Wedding",
+          artist: "Narrator",
+          coverImage: imageAssets[1],
+          assetIndex: 3,
+          category: "reddit",
+        },
+        {
+          id: "5",
+          title:
+            "Wife Left Me And Came Back With A Baby, Begging For A Second Chance",
+          artist: "Narrator",
+          coverImage: imageAssets[1],
+          assetIndex: 4,
+          category: "reddit",
+        },
+        {
+          id: "6",
+          title: "The Whispering Shadows",
+          artist: "Horror Tales",
+          coverImage: imageAssets[2],
+          assetIndex: 5,
+          category: "horror",
+        },
+        {
+          id: "7",
+          title: "Something's Watching Me At Night",
+          artist: "Creepy Narrator",
+          coverImage: imageAssets[2],
+          assetIndex: 6,
+          category: "horror",
+        },
+        {
+          id: "8",
+          title: "It's A Firefly Night!",
+          artist: "Kids Storytime",
+          coverImage: imageAssets[3],
+          assetIndex: 7,
+          category: "kids",
+        },
+        {
+          id: "9",
+          title: "The Little Bunny's Big Day",
+          artist: "Kids Narrator",
+          coverImage: imageAssets[3],
+          assetIndex: 8,
+          category: "kids",
+        },
       ];
 
       const updatedAudioList = await Promise.all(
@@ -87,7 +172,7 @@ const ListenStories = () => {
             return { ...item, duration: formatDuration(status.durationMillis) };
           } catch (error) {
             console.error(`Error loading ${item.title}:`, error);
-            return { ...item, duration: "N/A" }; 
+            return { ...item, duration: "N/A" };
           }
         })
       );
@@ -105,7 +190,6 @@ const ListenStories = () => {
     const seconds = Math.floor((millis % 60000) / 1000);
     return `${minutes}:${seconds.toString().padStart(2, "0")}`;
   };
-
 
   const handleTogglePlay = async (item) => {
     try {
@@ -145,34 +229,55 @@ const ListenStories = () => {
       if (sound) sound.unloadAsync();
     };
   }, [sound]);
-  
+
   const renderSkeletons = () => {
     return Array(4)
       .fill(0)
-      .map((_, index) => <MusicItemSkeleton key={`skeleton-${index}`} />)
-  }
-  
+      .map((_, index) => <MusicItemSkeleton key={`skeleton-${index}`} />);
+  };
+
   return (
-    <LinearGradient colors={["#121212", "#1E1E30", "#231B36", "#1E1E30", "#121212"]} style={{ flex: 1 }}>
+    <LinearGradient
+      colors={["#121212", "#1E1E30", "#231B36", "#1E1E30", "#121212"]}
+      style={{ flex: 1 }}
+    >
       <SafeAreaView className="flex-1">
         <ScrollView className="px-5 py-5">
           <View className="flex flex-row items-center gap-x-5">
             <TouchableOpacity onPress={() => router.back()}>
               <View className="p-1">
-                <ChevronLeft color="white" />
+                <Feather name="chevron-left" size={24} color="white" />
               </View>
             </TouchableOpacity>
-            <Text className="text-foreground font-sans-bold text-3xl py-5">Listen Stories</Text>
+            <Text className="text-foreground font-sans-bold text-3xl py-5">
+              Listen Stories
+            </Text>
           </View>
 
           {loading ? (
             <TabsSkeleton />
           ) : (
             <View className="flex-row space-x-3 mb-5 gap-x-2">
-              <Tab title="For You" isActive={activeTab === "tab1"} onPress={() => setActiveTab("tab1")} />
-              <Tab title="For Kids" isActive={activeTab === "tab4"} onPress={() => setActiveTab("tab4")} />
-              <Tab title="Reddit Stories" isActive={activeTab === "tab2"} onPress={() => setActiveTab("tab2")} />
-              <Tab title="Horror" isActive={activeTab === "tab3"} onPress={() => setActiveTab("tab3")} />
+              <Tab
+                title="For You"
+                isActive={activeTab === "tab1"}
+                onPress={() => setActiveTab("tab1")}
+              />
+              <Tab
+                title="For Kids"
+                isActive={activeTab === "tab4"}
+                onPress={() => setActiveTab("tab4")}
+              />
+              <Tab
+                title="Reddit Stories"
+                isActive={activeTab === "tab2"}
+                onPress={() => setActiveTab("tab2")}
+              />
+              <Tab
+                title="Horror"
+                isActive={activeTab === "tab3"}
+                onPress={() => setActiveTab("tab3")}
+              />
             </View>
           )}
 
@@ -190,11 +295,12 @@ const ListenStories = () => {
               ? renderSkeletons()
               : audioList
                   .filter((item) => {
-                    if (activeTab === "tab1") return item.category === "general"
-                    if (activeTab === "tab2") return item.category === "reddit"
-                    if (activeTab === "tab3") return item.category === "horror"
-                    if (activeTab === "tab4") return item.category === "kids"
-                    return false
+                    if (activeTab === "tab1")
+                      return item.category === "general";
+                    if (activeTab === "tab2") return item.category === "reddit";
+                    if (activeTab === "tab3") return item.category === "horror";
+                    if (activeTab === "tab4") return item.category === "kids";
+                    return false;
                   })
                   .map((item) => (
                     <MusicItem
@@ -208,7 +314,7 @@ const ListenStories = () => {
         </ScrollView>
       </SafeAreaView>
     </LinearGradient>
-  )
-}
+  );
+};
 
 export default ListenStories;

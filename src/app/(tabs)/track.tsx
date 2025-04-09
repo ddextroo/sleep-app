@@ -13,17 +13,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { Dimensions } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import Svg, { Circle } from "react-native-svg";
-import {
-  Moon,
-  Sun,
-  ChevronLeft,
-  ChevronRight,
-  StopCircle,
-  Play,
-  TrendingUp,
-  TrendingDown,
-  Minus,
-} from "lucide-react-native";
+import { Feather } from "@expo/vector-icons";
 import {
   startSleepTracking,
   formatDuration,
@@ -345,7 +335,7 @@ export default function TrackScreen() {
             >
               <View className="bg-[#1E1E30] backdrop-blur-lg rounded-3xl p-8 w-4/5 items-center shadow-lg">
                 <View className="bg-[#2D2D2D] p-4 rounded-full mb-6">
-                  <Moon size={32} color="#8A7CFF" />
+                  <Feather name="moon" size={32} color="#8A7CFF" />
                 </View>
                 <Text className="text-white text-2xl font-sans-bold mb-2">
                   Start Sleep Tracking?
@@ -389,7 +379,7 @@ export default function TrackScreen() {
             >
               <View className="bg-[#1E1E30] backdrop-blur-lg rounded-3xl p-8 w-4/5 items-center shadow-lg">
                 <View className="bg-[#2D2D2D] p-4 rounded-full mb-6">
-                  <Sun size={32} color="#8A7CFF" />
+                  <Feather name="sun" size={32} color="#8A7CFF" />
                 </View>
                 <Text className="text-white text-2xl font-sans-bold mb-2">
                   {getMessage()}
@@ -422,7 +412,7 @@ export default function TrackScreen() {
               onPress={() => navigateDate(-1)}
               className="bg-[#2D2D2D] p-2 rounded-lg"
             >
-              <ChevronLeft size={20} color="#8A7CFF" />
+              <Feather name="chevron-left" size={20} color="#8A7CFF" />
             </TouchableOpacity>
             {isLoading ? (
               <Skeleton className="h-6 w-20" />
@@ -435,7 +425,7 @@ export default function TrackScreen() {
               onPress={() => navigateDate(1)}
               className="bg-[#2D2D2D] p-2 rounded-lg"
             >
-              <ChevronRight size={20} color="#8A7CFF" />
+              <Feather name="chevron-right" size={20} color="#8A7CFF" />
             </TouchableOpacity>
           </View>
 
@@ -513,11 +503,19 @@ export default function TrackScreen() {
                         <View className="flex-row items-center gap-2">
                           <View>
                             {currentHours > previousHoursValue ? (
-                              <TrendingUp size={16} color="#8A7CFF" />
+                              <Feather
+                                name="trending-up"
+                                size={16}
+                                color="#8A7CFF"
+                              />
                             ) : currentHours < previousHoursValue ? (
-                              <TrendingDown size={16} color="#8A7CFF" />
+                              <Feather
+                                name="trending-down"
+                                size={16}
+                                color="#8A7CFF"
+                              />
                             ) : (
-                              <Minus size={16} color="#8A7CFF" />
+                              <Feather name="minus" size={16} color="#8A7CFF" />
                             )}
                           </View>
                           <Text className="font-sans w-60 text-gray-400 text-xs">
@@ -620,7 +618,7 @@ export default function TrackScreen() {
                     onPress={handleStopTracking}
                     className="flex-row items-center bg-red-600 rounded-xl px-6 py-3"
                   >
-                    <StopCircle size={24} color="white" />
+                    <Feather name="stop-circle" size={24} color="white" />
                     <Text className="text-white font-sans-bold text-lg ml-2">
                       Stop Tracking
                     </Text>
@@ -633,7 +631,7 @@ export default function TrackScreen() {
                       {/* Bedtime */}
                       <View className="items-center bg-[#2D2D2D]/50 rounded-xl p-4 w-40">
                         <View className="bg-[#2D2D2D] p-3 rounded-full mb-2">
-                          <Moon size={24} color="#8A7CFF" />
+                          <Feather name="moon" size={24} color="#8A7CFF" />
                         </View>
                         <Text className="text-gray-400 text-xs text-center">
                           Bedtime
@@ -646,7 +644,7 @@ export default function TrackScreen() {
                       {/* Wake Up */}
                       <View className="items-center bg-[#2D2D2D]/50 rounded-xl p-4 w-40">
                         <View className="bg-[#2D2D2D] p-3 rounded-full mb-2">
-                          <Sun size={24} color="#8A7CFF" />
+                          <Feather name="sun" size={24} color="#8A7CFF" />
                         </View>
                         <Text className="text-gray-400 text-xs text-center">
                           Wake Up
@@ -663,7 +661,7 @@ export default function TrackScreen() {
                       onPress={() => setModalVisible(true)}
                       className="flex-row items-center justify-center bg-[#8A7CFF] rounded-xl px-6 py-3 w-[100%]"
                     >
-                      <Play size={24} color="white" />
+                      <Feather name="play" size={24} color="white" />
                       <Text className="text-white font-sans-bold text-lg ml-2">
                         Start Tracking
                       </Text>
@@ -679,7 +677,7 @@ export default function TrackScreen() {
                   {/* Bedtime */}
                   <View className="items-center bg-[#2D2D2D]/50 rounded-xl p-4 w-40">
                     <View className="bg-[#2D2D2D] p-3 rounded-full mb-2">
-                      <Moon size={24} color="#8A7CFF" />
+                      <Feather name="moon" size={24} color="#8A7CFF" />
                     </View>
                     <Text className="text-gray-400 text-xs text-center">
                       Bedtime
@@ -692,7 +690,7 @@ export default function TrackScreen() {
                   {/* Wake Up */}
                   <View className="items-center bg-[#2D2D2D]/50 rounded-xl p-4 w-40">
                     <View className="bg-[#2D2D2D] p-3 rounded-full mb-2">
-                      <Sun size={24} color="#8A7CFF" />
+                      <Feather name="sun" size={24} color="#8A7CFF" />
                     </View>
                     <Text className="text-gray-400 text-xs text-center">
                       Wake Up
@@ -826,7 +824,7 @@ export default function TrackScreen() {
                   <View className="flex-row gap-4">
                     <View className="items-end">
                       <View className="flex-row items-center gap-1">
-                        <TrendingUp size={16} color="#22c55e" />
+                        <Feather name="trending-up" size={16} color="#22c55e" />
                         <Text className="text-gray-300 font-sans-medium">
                           Best
                         </Text>
@@ -846,7 +844,11 @@ export default function TrackScreen() {
                     </View>
                     <View className="items-end">
                       <View className="flex-row items-center gap-1">
-                        <TrendingDown size={16} color="#ef4444" />
+                        <Feather
+                          name="trending-down"
+                          size={16}
+                          color="#ef4444"
+                        />
                         <Text className="text-gray-300 font-sans-medium">
                           Worst
                         </Text>

@@ -1,15 +1,6 @@
 import { Text, View, TouchableOpacity, ScrollView } from "react-native";
 import { SafeAreaView } from "react-native";
-import {
-  LogOut,
-  ChevronRight,
-  Plus,
-  Settings,
-  CreditCard,
-  Bell,
-  HelpCircle,
-  Coins,
-} from "lucide-react-native";
+import { Feather } from "@expo/vector-icons";
 import { Button } from "~/components/ui/button";
 import MenuItem from "~/components/home/profile/MenuItem";
 import { useEffect, useState } from "react";
@@ -131,10 +122,10 @@ export default function Profile() {
             onPress={handleSignOut}
           >
             <View className="flex flex-row gap-x-3 items-center">
-              <LogOut color="white" size={20} />
+              <Feather name="log-out" size={20} color="white" />
               <Text className="font-sans-medium text-foreground">Sign out</Text>
             </View>
-            <ChevronRight color="white" size={20} />
+            <Feather name="chevron-right" size={20} color="white" />
           </Button>
         </ScrollView>
       </SafeAreaView>

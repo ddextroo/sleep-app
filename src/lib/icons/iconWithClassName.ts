@@ -1,13 +1,12 @@
-import type { LucideIcon } from 'lucide-react-native';
+import { Feather } from '@expo/vector-icons';
 import { cssInterop } from 'nativewind';
 
-export function iconWithClassName(icon: LucideIcon) {
+export function iconWithClassName(icon: typeof Feather) {
   cssInterop(icon, {
     className: {
       target: 'style',
       nativeStyleToProp: {
-        color: true,
-        opacity: true,
+        color: 'color',
       },
     },
   });
