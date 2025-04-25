@@ -5,14 +5,16 @@ import {
   TouchableOpacity,
   ScrollView,
   SafeAreaView,
+  BackHandler,
 } from "react-native";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { LinearGradient } from "expo-linear-gradient";
 import { Feather } from "@expo/vector-icons";
 import { Audio } from "expo-av";
 import { useAssets } from "expo-asset";
 import { router } from "expo-router";
 import { MusicItemSkeleton, TabsSkeleton } from "./components/skeleton";
+import { storyAudioFiles } from "../../constants/storyAudioData";
 
 const MusicItem = ({ item, isPlaying, onTogglePlay }) => (
   <View className="flex-row items-center bg-[#1E1E30] rounded-xl p-3 mb-3">
@@ -60,6 +62,7 @@ const ListenStories = () => {
   const [sound, setSound] = useState<Audio.Sound | null>(null);
   const [audioList, setAudioList] = useState([]);
   const [loading, setLoading] = useState(false);
+  const isMounted = useRef(true);
 
   const [imageAssets] = useAssets([
     require("~/assets/images/loveradio.png"),
@@ -67,21 +70,53 @@ const ListenStories = () => {
     require("~/assets/images/horror.png"),
     require("~/assets/images/bedtime.jpeg"),
   ]);
-  const [assets] = useAssets([
-    require("~/assets/listen_stories/djraqi1.mp3"),
-    require("~/assets/listen_stories/djraqi2.mp3"),
-    require("~/assets/listen_stories/djraqi3.mp3"),
-    require("~/assets/listen_stories/reddit1.mp3"),
-    require("~/assets/listen_stories/reddit2.mp3"),
-    require("~/assets/listen_stories/parkinglot.mp3"),
-    require("~/assets/listen_stories/dalampasigan.mp3"),
-    require("~/assets/listen_stories/firefly.mp3"),
-    require("~/assets/listen_stories/elephant.mp3"),
-  ]);
+
+  // Cleanup function to stop and unload sound
+  const cleanupSound = async () => {
+    if (sound && isMounted.current) {
+      try {
+        await sound.stopAsync();
+        await sound.unloadAsync();
+        if (isMounted.current) {
+          setSound(null);
+          setPlayingId(null);
+        }
+      } catch (error) {
+        console.error("Error cleaning up sound:", error);
+      }
+    }
+  };
+
+  // Handle component unmount
+  useEffect(() => {
+    return () => {
+      isMounted.current = false;
+      if (sound) {
+        sound
+          .stopAsync()
+          .then(() => sound.unloadAsync())
+          .catch((e) => console.error(e));
+      }
+    };
+  }, [sound]);
+
+  // Handle back button press
+  useEffect(() => {
+    const backAction = () => {
+      cleanupSound();
+      return false; // Let the default back action proceed
+    };
+
+    const backHandler = BackHandler.addEventListener(
+      "hardwareBackPress",
+      backAction
+    );
+    return () => backHandler.remove();
+  }, [sound]);
 
   useEffect(() => {
     const loadAudioMetadata = async () => {
-      if (!assets) {
+      if (!imageAssets) {
         setLoading(true);
         return;
       }
@@ -92,32 +127,32 @@ const ListenStories = () => {
           title: "He was my favorite 'Hello' and my hardest 'Goodbye'",
           artist: "Love Radio Manila",
           coverImage: imageAssets[0],
-          assetIndex: 0,
           category: "general",
+          uri: storyAudioFiles[0],
         },
         {
           id: "2",
           title: "Kinuha akong ninong ni EX!",
           artist: "Love Radio Manila",
           coverImage: imageAssets[0],
-          assetIndex: 1,
           category: "general",
+          uri: storyAudioFiles[1],
         },
         {
           id: "3",
           title: "Pinagpalit niya ang 8 years sa babaeng kakakilala lang niya",
           artist: "Love Radio Manila",
           coverImage: imageAssets[0],
-          assetIndex: 2,
           category: "general",
+          uri: storyAudioFiles[2],
         },
         {
           id: "4",
           title: "Excluded From My Sisters Wedding",
           artist: "Narrator",
           coverImage: imageAssets[1],
-          assetIndex: 3,
           category: "reddit",
+          uri: storyAudioFiles[3],
         },
         {
           id: "5",
@@ -125,40 +160,40 @@ const ListenStories = () => {
             "Wife Left Me And Came Back With A Baby, Begging For A Second Chance",
           artist: "Narrator",
           coverImage: imageAssets[1],
-          assetIndex: 4,
           category: "reddit",
+          uri: storyAudioFiles[4],
         },
         {
           id: "6",
           title: "The Whispering Shadows",
           artist: "Horror Tales",
           coverImage: imageAssets[2],
-          assetIndex: 5,
           category: "horror",
+          uri: storyAudioFiles[5],
         },
         {
           id: "7",
           title: "Something's Watching Me At Night",
           artist: "Creepy Narrator",
           coverImage: imageAssets[2],
-          assetIndex: 6,
           category: "horror",
+          uri: storyAudioFiles[6],
         },
         {
           id: "8",
           title: "It's A Firefly Night!",
           artist: "Kids Storytime",
           coverImage: imageAssets[3],
-          assetIndex: 7,
           category: "kids",
+          uri: storyAudioFiles[7],
         },
         {
           id: "9",
           title: "The Little Bunny's Big Day",
           artist: "Kids Narrator",
           coverImage: imageAssets[3],
-          assetIndex: 8,
           category: "kids",
+          uri: storyAudioFiles[8],
         },
       ];
 
@@ -166,10 +201,18 @@ const ListenStories = () => {
         audioData.map(async (item) => {
           try {
             const soundObject = new Audio.Sound();
-            await soundObject.loadAsync(assets[item.assetIndex]);
+            await soundObject.loadAsync({ uri: item.uri });
             const status = await soundObject.getStatusAsync();
             await soundObject.unloadAsync();
-            return { ...item, duration: formatDuration(status.durationMillis) };
+
+            if (!status.isLoaded) {
+              throw new Error("Sound failed to load");
+            }
+
+            return {
+              ...item,
+              duration: formatDuration(status.durationMillis || 0),
+            };
           } catch (error) {
             console.error(`Error loading ${item.title}:`, error);
             return { ...item, duration: "N/A" };
@@ -177,12 +220,14 @@ const ListenStories = () => {
         })
       );
 
-      setAudioList(updatedAudioList);
-      setLoading(false);
+      if (isMounted.current) {
+        setAudioList(updatedAudioList);
+        setLoading(false);
+      }
     };
 
     loadAudioMetadata();
-  }, [assets]);
+  }, [imageAssets]);
 
   const formatDuration = (millis: number | undefined) => {
     if (!millis) return "0:00";
@@ -199,11 +244,13 @@ const ListenStories = () => {
         if (sound) await sound.pauseAsync();
         return;
       }
+
       if (sound) {
         console.log(`Stopping previous audio before playing ${item.title}`);
         await sound.stopAsync();
         await sound.unloadAsync();
       }
+
       await Audio.requestPermissionsAsync();
       await Audio.setAudioModeAsync({
         staysActiveInBackground: true,
@@ -212,9 +259,24 @@ const ListenStories = () => {
         allowsRecordingIOS: false,
         playsInSilentModeIOS: true,
       });
+
       const { sound: newSound } = await Audio.Sound.createAsync(
-        assets[item.assetIndex]
+        { uri: item.uri },
+        { shouldPlay: false }
       );
+
+      // Add onPlaybackStatusUpdate to handle when audio completes
+      newSound.setOnPlaybackStatusUpdate((status) => {
+        if (
+          status.isLoaded &&
+          status.positionMillis === status.durationMillis &&
+          isMounted.current
+        ) {
+          setPlayingId(null);
+          newSound.unloadAsync().catch((e) => console.error(e));
+        }
+      });
+
       setSound(newSound);
       setPlayingId(item.id);
       console.log(`Playing: ${item.title}`);
@@ -223,12 +285,6 @@ const ListenStories = () => {
       console.error("Error playing sound:", error);
     }
   };
-
-  useEffect(() => {
-    return () => {
-      if (sound) sound.unloadAsync();
-    };
-  }, [sound]);
 
   const renderSkeletons = () => {
     return Array(4)
@@ -257,28 +313,34 @@ const ListenStories = () => {
           {loading ? (
             <TabsSkeleton />
           ) : (
-            <View className="flex-row space-x-3 mb-5 gap-x-2">
-              <Tab
-                title="For You"
-                isActive={activeTab === "tab1"}
-                onPress={() => setActiveTab("tab1")}
-              />
-              <Tab
-                title="For Kids"
-                isActive={activeTab === "tab4"}
-                onPress={() => setActiveTab("tab4")}
-              />
-              <Tab
-                title="Reddit Stories"
-                isActive={activeTab === "tab2"}
-                onPress={() => setActiveTab("tab2")}
-              />
-              <Tab
-                title="Horror"
-                isActive={activeTab === "tab3"}
-                onPress={() => setActiveTab("tab3")}
-              />
-            </View>
+            <ScrollView
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              contentContainerStyle={{ paddingRight: 20 }}
+            >
+              <View className="flex-row space-x-3 mb-5 gap-x-2">
+                <Tab
+                  title="For You"
+                  isActive={activeTab === "tab1"}
+                  onPress={() => setActiveTab("tab1")}
+                />
+                <Tab
+                  title="For Kids"
+                  isActive={activeTab === "tab4"}
+                  onPress={() => setActiveTab("tab4")}
+                />
+                <Tab
+                  title="Reddit Stories"
+                  isActive={activeTab === "tab2"}
+                  onPress={() => setActiveTab("tab2")}
+                />
+                <Tab
+                  title="Horror"
+                  isActive={activeTab === "tab3"}
+                  onPress={() => setActiveTab("tab3")}
+                />
+              </View>
+            </ScrollView>
           )}
 
           <View className="flex flex-row justify-between mb-4">

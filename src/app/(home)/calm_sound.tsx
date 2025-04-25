@@ -5,14 +5,17 @@ import {
   TouchableOpacity,
   ScrollView,
   SafeAreaView,
+  BackHandler,
 } from "react-native";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { LinearGradient } from "expo-linear-gradient";
 import { Feather } from "@expo/vector-icons";
 import { Audio } from "expo-av";
 import { useAssets } from "expo-asset";
 import { router } from "expo-router";
 import { MusicItemSkeleton, TabsSkeleton } from "./components/skeleton";
+import { audioFiles, audioCategories } from "../../constants/audioData";
+import * as Linking from "expo-linking";
 
 const SoundItem = ({ item, isPlaying, onTogglePlay }) => (
   <View className="flex-row items-center bg-[#1E1E30] rounded-xl p-3 mb-3">
@@ -60,28 +63,60 @@ const CalmSound = () => {
   const [sound, setSound] = useState(null);
   const [audioList, setAudioList] = useState([]);
   const [loading, setLoading] = useState(false);
+  const isMounted = useRef(true);
 
   const [imageAssets] = useAssets([
     require("~/assets/images/nature.jpg"),
     require("~/assets/images/sleeeepp.jpg"),
     require("~/assets/images/med.jpg"),
   ]);
-  const [assets] = useAssets([
-    require("~/assets/calm_sounds/nature1.mp3"),
-    require("~/assets/calm_sounds/nature2.mp3"),
-    require("~/assets/calm_sounds/nature3.mp3"),
-    require("~/assets/calm_sounds/nature4.mp3"),
-    require("~/assets/calm_sounds/nature5.mp3"),
-    require("~/assets/calm_sounds/meditation1.mp3"),
-    require("~/assets/calm_sounds/meditation2.mp3"),
-    require("~/assets/calm_sounds/sleep1.mp3"),
-    require("~/assets/calm_sounds/sleep2.mp3"),
-    require("~/assets/calm_sounds/sleep3.mp3"),
-  ]);
+
+  // Cleanup function to stop and unload sound
+  const cleanupSound = async () => {
+    if (sound && isMounted.current) {
+      try {
+        await sound.stopAsync();
+        await sound.unloadAsync();
+        if (isMounted.current) {
+          setSound(null);
+          setPlayingId(null);
+        }
+      } catch (error) {
+        console.error("Error cleaning up sound:", error);
+      }
+    }
+  };
+
+  // Handle component unmount
+  useEffect(() => {
+    return () => {
+      isMounted.current = false;
+      if (sound) {
+        sound
+          .stopAsync()
+          .then(() => sound.unloadAsync())
+          .catch((e) => console.error(e));
+      }
+    };
+  }, [sound]);
+
+  // Handle back button press
+  useEffect(() => {
+    const backAction = () => {
+      cleanupSound();
+      return false; // Let the default back action proceed
+    };
+
+    const backHandler = BackHandler.addEventListener(
+      "hardwareBackPress",
+      backAction
+    );
+    return () => backHandler.remove();
+  }, [sound]);
 
   useEffect(() => {
     const loadAudioMetadata = async () => {
-      if (!assets) {
+      if (!imageAssets) {
         setLoading(true);
         return;
       }
@@ -95,6 +130,7 @@ const CalmSound = () => {
           category: "nature",
           coverImage: imageAssets[0],
           assetIndex: 0,
+          uri: audioFiles[0],
         },
         {
           id: "2",
@@ -103,6 +139,7 @@ const CalmSound = () => {
           category: "nature",
           coverImage: imageAssets[0],
           assetIndex: 1,
+          uri: audioFiles[1],
         },
         {
           id: "3",
@@ -111,6 +148,7 @@ const CalmSound = () => {
           category: "nature",
           coverImage: imageAssets[0],
           assetIndex: 2,
+          uri: audioFiles[2],
         },
         {
           id: "4",
@@ -119,6 +157,7 @@ const CalmSound = () => {
           category: "nature",
           coverImage: imageAssets[0],
           assetIndex: 3,
+          uri: audioFiles[3],
         },
         {
           id: "5",
@@ -127,6 +166,7 @@ const CalmSound = () => {
           category: "nature",
           coverImage: imageAssets[0],
           assetIndex: 4,
+          uri: audioFiles[4],
         },
         {
           id: "6",
@@ -135,6 +175,7 @@ const CalmSound = () => {
           category: "meditation",
           coverImage: imageAssets[2],
           assetIndex: 5,
+          uri: audioFiles[5],
         },
         {
           id: "7",
@@ -143,6 +184,7 @@ const CalmSound = () => {
           category: "meditation",
           coverImage: imageAssets[2],
           assetIndex: 6,
+          uri: audioFiles[6],
         },
         {
           id: "8",
@@ -151,6 +193,7 @@ const CalmSound = () => {
           category: "sleep",
           coverImage: imageAssets[1],
           assetIndex: 7,
+          uri: audioFiles[7],
         },
         {
           id: "9",
@@ -159,6 +202,7 @@ const CalmSound = () => {
           category: "sleep",
           coverImage: imageAssets[1],
           assetIndex: 8,
+          uri: audioFiles[8],
         },
         {
           id: "10",
@@ -167,6 +211,7 @@ const CalmSound = () => {
           category: "sleep",
           coverImage: imageAssets[1],
           assetIndex: 9,
+          uri: audioFiles[9],
         },
       ];
 
@@ -174,10 +219,18 @@ const CalmSound = () => {
         soundData.map(async (item) => {
           try {
             const soundObject = new Audio.Sound();
-            await soundObject.loadAsync(assets[item.assetIndex]);
+            await soundObject.loadAsync({ uri: item.uri });
             const status = await soundObject.getStatusAsync();
             await soundObject.unloadAsync();
-            return { ...item, duration: formatDuration(status.durationMillis) };
+
+            if (!status.isLoaded) {
+              throw new Error("Sound failed to load");
+            }
+
+            return {
+              ...item,
+              duration: formatDuration(status.durationMillis || 0),
+            };
           } catch (error) {
             console.error(`Error loading ${item.title}:`, error);
             return { ...item, duration: "N/A" };
@@ -190,7 +243,7 @@ const CalmSound = () => {
     };
 
     loadAudioMetadata();
-  }, [assets]);
+  }, [imageAssets]);
 
   const formatDuration = (millis) => {
     if (!millis) return "0:00";
@@ -221,9 +274,22 @@ const CalmSound = () => {
         playsInSilentModeIOS: true,
       });
 
-      const { sound: newSound } = await Audio.Sound.createAsync(
-        assets[item.assetIndex]
-      );
+      const { sound: newSound } = await Audio.Sound.createAsync({
+        uri: item.uri,
+      });
+
+      // Add onPlaybackStatusUpdate to handle when audio completes
+      newSound.setOnPlaybackStatusUpdate((status) => {
+        if (
+          status.isLoaded &&
+          status.positionMillis === status.durationMillis &&
+          status.durationMillis > 0
+        ) {
+          setPlayingId(null);
+          newSound.unloadAsync().catch((e) => console.error(e));
+        }
+      });
+
       setSound(newSound);
       setPlayingId(item.id);
       await newSound.playAsync();

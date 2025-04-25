@@ -12,7 +12,7 @@ SplashScreen.preventAutoHideAsync();
 export default function Layout() {
   const router = useRouter();
   const [initialized, setInitialized] = useState(false);
-  const { onboardingComplete, initAuth } = useOnboardingStore();
+  const { session, onboardingComplete, initAuth } = useOnboardingStore();
   const [fontsLoaded] = useFonts({
     "Poppins-Regular": require("./../assets/fonts/Poppins-Regular.ttf"),
     "Poppins-Bold": require("./../assets/fonts/Poppins-Bold.ttf"),
@@ -22,11 +22,20 @@ export default function Layout() {
   useEffect(() => {
     const checkAuth = async () => {
       await initAuth();
-      if (onboardingComplete) {
-        router.replace("/(tabs)");
-      } else {
+
+      // First check if onboarding is complete
+      if (!onboardingComplete) {
         router.replace("/(onboarding)/welcome");
       }
+      // Then check if user is authenticated
+      else if (session) {
+        router.replace("/(tabs)");
+      }
+      // If onboarding is complete but not authenticated, go to login
+      else {
+        router.replace("/(auth)/login");
+      }
+
       setInitialized(true);
     };
 

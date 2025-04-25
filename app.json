@@ -2,11 +2,7 @@
   "expo": {
     "scheme": "hagoc",
     "owner": "dextro",
-    "platforms": [
-      "ios",
-      "android",
-      "web"
-    ],
+    "platforms": ["ios", "android", "web"],
     "userInterfaceStyle": "automatic",
     "orientation": "default",
     "web": {
@@ -15,9 +11,7 @@
     "experiments": {
       "typedRoutes": true
     },
-    "assetBundlePatterns": [
-      "**/*"
-    ],
+    "assetBundlePatterns": ["**/*"],
     "fonts": [
       "./src/assets/fonts/Poppins-Regular.ttf",
       "./src/assets/fonts/Poppins-Bold.ttf",
@@ -43,21 +37,6 @@
             "./src/assets/images/med.jpg",
             "./src/assets/images/sleeeepp.jpg",
             "./src/assets/images/nature.jpg",
-            "./src/assets/listen_stories/djraqi1.mp3",
-            "./src/assets/listen_stories/djraqi2.mp3",
-            "./src/assets/listen_stories/djraqi3.mp3",
-            "./src/assets/listen_stories/reddit1.mp3",
-            "./src/assets/listen_stories/reddit2.mp3",
-            "./src/assets/calm_sounds/nature1.mp3",
-            "./src/assets/calm_sounds/nature2.mp3",
-            "./src/assets/calm_sounds/nature3.mp3",
-            "./src/assets/calm_sounds/nature4.mp3",
-            "./src/assets/calm_sounds/nature5.mp3",
-            "./src/assets/calm_sounds/meditation1.mp3",
-            "./src/assets/calm_sounds/meditation2.mp3",
-            "./src/assets/calm_sounds/sleep1.mp3",
-            "./src/assets/calm_sounds/sleep2.mp3",
-            "./src/assets/calm_sounds/sleep3.mp3",
             "./src/assets/lottie/confetti.json"
           ]
         }
@@ -104,10 +83,7 @@
               "host": "redirect"
             }
           ],
-          "category": [
-            "BROWSABLE",
-            "DEFAULT"
-          ]
+          "category": ["BROWSABLE", "DEFAULT"]
         }
       ]
     },
